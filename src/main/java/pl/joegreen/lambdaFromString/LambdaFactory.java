@@ -33,8 +33,11 @@ public class LambdaFactory {
             // the whole point of the class template and runtime compilation is to make this cast work well :-)
                     T lambda = (T) lambdaReturningMethod.invoke(null);
             return lambda;
-        } catch (NoSuchMethodException | ClassCompilationException | IllegalAccessException  | InvocationTargetException e) {
+        } catch (NoSuchMethodException | IllegalAccessException  | InvocationTargetException e) {
             throw new LambdaCreationException(e);
+        } catch(ClassCompilationException classCompilationException){
+            // knows type of the cause so it get CompilationDetails
+            throw new LambdaCreationException(classCompilationException);
         }
     }
 

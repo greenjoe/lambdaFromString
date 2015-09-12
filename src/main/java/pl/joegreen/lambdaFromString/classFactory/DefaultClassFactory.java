@@ -37,7 +37,7 @@ public class DefaultClassFactory implements ClassFactory {
 
             boolean status = compilationTask.call();
             if (!status) {
-                throw new ClassCompilationException(fullClassName, sourceCode, diagnosticsCollector.getDiagnostics());
+                throw new ClassCompilationException(new CompilationDetails(fullClassName, sourceCode, diagnosticsCollector.getDiagnostics()));
             }
             return stdFileManager.getClasses();
         }
