@@ -27,7 +27,7 @@ information at runtime and it's called [super type tokens](http://gafter.blogspo
 Information about the expected type is needed so that the compiler can use it's type inference
 when compiling lambda code and users don't have to write those types inside the actual lambda code. 
 
-The compilation process takes time (over 1s on my laptop) so it cannot be used in computation intensive loops. 
+The compilation process takes time (on my laptop: first call ~1s, subsequent calls ~0.1s).
 The library is rather intended to be used once during the configuration reading process when the application starts. 
 LambdaFactory instances are threadsafe. 
 
@@ -46,11 +46,10 @@ compilation process in memory. The source that is compiled looks like this:
 
 ```java
 public class LambdaFromStringHelper {
-    public {TYPE} getLambda() {return ({LAMBDA_CODE});}
+    public static {TYPE} getLambda() {return ({LAMBDA_CODE});}
 }
 ```
-The class is loaded by a custom class loader and then reflection is used to create an instance and call 'getLambda' 
-to get the actual lambda. 
+The class is loaded by a custom class loader and then reflection is used to call 'getLambda' to get the actual lambda. 
 
 
 ## Contribution

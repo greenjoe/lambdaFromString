@@ -1,5 +1,5 @@
 import java.util.function.*;
 
 public class LambdaFromStringHelper {
-    public %s getLambda() {return (%s);}
+    public static %s getLambda() {return (%s);}
 }

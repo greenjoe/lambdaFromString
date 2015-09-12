@@ -19,15 +19,16 @@ public class LambdaFactoryTest {
     @Test
     public void integerIncrement() {
         Function<Integer, Integer> lambda = lambdaFactory.createLambdaUnchecked
-                ("i -> i+1", new TypeReference<Function<Integer, Integer>>(){});
+                ("i -> i+1", new TypeReference<Function<Integer, Integer>>() {});
         assertTrue(1 == lambda.apply(0));
     }
+
 
     @Test
     public void integerMultiply(){
         IntBinaryOperator lambda = lambdaFactory.createLambdaUnchecked
                 ("(a,b) -> a*b", new TypeReference<IntBinaryOperator>() {});
-        assertEquals(1*2*3*4, IntStream.range(1,5).reduce(lambda).getAsInt());
+        assertEquals(1 * 2 * 3 * 4, IntStream.range(1, 5).reduce(lambda).getAsInt());
     }
 
     @Test
