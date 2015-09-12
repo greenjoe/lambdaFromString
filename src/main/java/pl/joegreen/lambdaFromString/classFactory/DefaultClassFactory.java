@@ -1,6 +1,9 @@
 package pl.joegreen.lambdaFromString.classFactory;
 
-import javax.tools.*;
+import javax.tools.DiagnosticCollector;
+import javax.tools.JavaCompiler;
+import javax.tools.JavaFileObject;
+import javax.tools.ToolProvider;
 import java.util.Collections;
 import java.util.Map;
 

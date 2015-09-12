@@ -5,7 +5,8 @@ import javax.tools.ForwardingJavaFileManager;
 import javax.tools.JavaFileManager;
 import javax.tools.JavaFileObject;
 import java.io.IOException;
-import java.util.*;
+import java.util.HashMap;
+import java.util.Map;
 
 /* JavaFileManager that uses in-memory byte arrays for output.
 When java compiler is using that file manager it doesn't create output files anywhere, it just puts compiled code

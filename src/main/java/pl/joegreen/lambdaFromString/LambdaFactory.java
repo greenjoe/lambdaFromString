@@ -1,34 +1,34 @@
 package pl.joegreen.lambdaFromString;
 
 import pl.joegreen.lambdaFromString.classFactory.ClassCompilationException;
-import pl.joegreen.lambdaFromString.classFactory.ClassFactory;
-import pl.joegreen.lambdaFromString.classFactory.DefaultClassFactory;
 
 import java.lang.reflect.InvocationTargetException;
 import java.lang.reflect.Method;
 
 public class LambdaFactory {
 
+    protected final LambdaFactoryConfiguration configuration;
+
     public static LambdaFactory get() {
-        return new LambdaFactory();
+        return new LambdaFactory(LambdaFactoryConfiguration.get());
     }
 
-    private final HelperClassSourceCreator helperClassSourceCreator;
-    private final ClassFactory classFactory;
+    public static LambdaFactory get(LambdaFactoryConfiguration configuration){
+        return new LambdaFactory(configuration);
+    }
 
-
-    private LambdaFactory() {
-        this.helperClassSourceCreator = new HelperClassSourceCreator();
-        this.classFactory = new DefaultClassFactory();
+    private LambdaFactory(LambdaFactoryConfiguration configuration) {
+        this.configuration = configuration;
     }
 
     public <T> T createLambda(String code, TypeReference<T> typeReference) throws LambdaCreationException {
-        String helperClassSource = helperClassSourceCreator.getHelperClassSource(typeReference.toString(), code);
+        HelperClassSourceProvider helperProvider = configuration.getDefaultHelperClassSourceProvider();
+        String helperClassSource = helperProvider.getHelperClassSource(typeReference.toString(), code,
+                configuration.getImports(), configuration.getStaticImports());
         try {
-            Class<?> helperClass = classFactory.createClass(
-                    helperClassSourceCreator.getHelperClassName(), helperClassSource
-            );
-            Method lambdaReturningMethod = helperClass.getMethod(helperClassSourceCreator.getLambdaReturningMethodName());
+            Class<?> helperClass = configuration.getClassFactory()
+                    .createClass(helperProvider.getHelperClassName(), helperClassSource);
+            Method lambdaReturningMethod = helperClass.getMethod(helperProvider.getLambdaReturningMethodName());
             @SuppressWarnings("unchecked")
             // the whole point of the class template and runtime compilation is to make this cast work well :-)
                     T lambda = (T) lambdaReturningMethod.invoke(null);

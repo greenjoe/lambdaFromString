@@ -1,8 +1,7 @@
 package pl.joegreen.lambdaFromString.classFactory;
 
-import java.net.URI;
-
 import javax.tools.SimpleJavaFileObject;
+import java.net.URI;
 
 /**
  * Gives the possibility to compile a class code stored in a string. <br>
