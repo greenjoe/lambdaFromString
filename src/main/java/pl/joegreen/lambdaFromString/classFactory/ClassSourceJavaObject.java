@@ -6,7 +6,7 @@ import javax.tools.SimpleJavaFileObject;
 
 /**
  * Gives the possibility to compile a class code stored in a string. <br>
- * <p/>
+ *
  * Solution inspired by: <br>
  * <a href="http://www.javabeat.net/2007/04/the-java-6-0-compiler-api/" >The
  * Java 6.0 Compiler API</a> <br>
