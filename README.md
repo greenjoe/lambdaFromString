@@ -8,26 +8,38 @@ Let's go straight to the code examples:
 ```java
 LambdaFactory lambdaFactory = LambdaFactory.get();
 
-Function<Integer, Integer> increase = lambdaFactory.createLambda
-        ("i -> i+1", new TypeReference<Function<Integer, Integer>>(){});
+Function<Integer, Integer> increase = lambdaFactory.createLambda(
+        "i -> i+1", new TypeReference<Function<Integer, Integer>>(){});
 assertTrue(1 == increase.apply(0));
 
-IntBinaryOperator multiply = lambdaFactory.createLambda
-        ("(a,b) -> a*b", new TypeReference<IntBinaryOperator>(){});
+IntBinaryOperator multiply = lambdaFactory.createLambda(
+        "(a,b) -> a*b", new TypeReference<IntBinaryOperator>(){});
 assertEquals(1*2*3*4, IntStream.range(1,5).reduce(multiply).getAsInt());
 
-
-Function<Integer, String> decorate = lambdaFactory.createLambda
-        ("i -> \"ABC\"+i+\"DEF\"", new TypeReference<Function<Integer, String>>(){});
+Function<Integer, String> decorate = lambdaFactory.createLambda(
+        "i -> \"ABC\"+i+\"DEF\"", new TypeReference<Function<Integer, String>>(){});
 assertEquals("ABC101DEF", decorate.apply(101));
 ```
+By default only java.util.function.* is imported by the class, as it is needed by the library itself. If you would like to import additional classes, you can specify imports in the configuration, as shown below. Please note that only Java standard library classes are available on the classpath, so you cannot import your own classes. 
 
-Yes, unfortunately the TypeReference class has to be subclassed when creating an instance. It looks like it's the only way to get generic type 
+Imports can be passed as `Class<?>` instances or strings (string form is the only way to use * wildcard). Static imports are also supported and can be passed as strings. 
+
+```java
+LambdaFactory factory = LambdaFactory.get(
+        LambdaFactoryConfiguration.get().withImports(BigDecimal.class));
+BiFunction<BigDecimal, BigDecimal, BigDecimal> lambda = factory.createLambda(
+        "(a,b) -> a.add(b)", new TypeReference<BiFunction<BigDecimal, BigDecimal, BigDecimal>>() {});
+assertEquals(new BigDecimal("11"), lambda.apply(BigDecimal.ONE, BigDecimal.TEN));
+```
+
+`createLambda` throws a checked `LambdaCreationException`. If the exception is caused by compilation errors, it will contain a `CompilationDetails` instance with all messages from the compiler. Class source and compilation errors are also provided as the exception message so they will appear in the stacktrace. It is the only exception that can be thrown by that method, all other runtime exceptions are being caught and wrapped by this one. If you don't like checked exceptions you can call `createLambdaUnchecked` which is a proxy to `createLambda` that throws `LambdaCreationRuntimeException` instead. 
+
+Unfortunately the TypeReference class has to be subclassed when creating an instance. It looks like it's the only way to get generic type 
 information at runtime and it's called [super type tokens](http://gafter.blogspot.com/2006/12/super-type-tokens.html). 
 Information about the expected type is needed so that the compiler can use it's type inference
 when compiling lambda code and users don't have to write those types inside the actual lambda code. 
 
-The compilation process takes time (on my laptop: first call ~1s, subsequent calls ~0.1s).
+The compilation process takes time (on my laptop: first call ~1s, subsequent calls ~0.1s) so it probably should not be used in places where performance matters.
 The library is rather intended to be used once during the configuration reading process when the application starts. 
 LambdaFactory instances are threadsafe. 
 
@@ -45,6 +57,7 @@ It actually compiles a new class using the Java Compiler API and some tricks to 
 compilation process in memory. The source that is compiled looks like this:
 
 ```java
+{IMPORTS}
 public class LambdaFromStringHelper {
     public static {TYPE} getLambda() {return ({LAMBDA_CODE});}
 }
