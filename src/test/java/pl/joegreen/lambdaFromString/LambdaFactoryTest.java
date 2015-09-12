@@ -18,30 +18,31 @@ public class LambdaFactoryTest {
 
     @Test
     public void integerIncrement() {
-        Function<Integer, Integer> lambda = defaultFactory.createLambdaUnchecked
-                ("i -> i+1", new TypeReference<Function<Integer, Integer>>() {});
+        Function<Integer, Integer> lambda = defaultFactory.createLambdaUnchecked(
+                "i -> i+1", new TypeReference<Function<Integer, Integer>>() {});
         assertTrue(1 == lambda.apply(0));
     }
 
     @Test
     public void integerMultiply(){
-        IntBinaryOperator lambda = defaultFactory.createLambdaUnchecked
-                ("(a,b) -> a*b", new TypeReference<IntBinaryOperator>() {});
+        IntBinaryOperator lambda = defaultFactory.createLambdaUnchecked(
+                "(a,b) -> a*b", new TypeReference<IntBinaryOperator>() {});
         assertEquals(1 * 2 * 3 * 4, IntStream.range(1, 5).reduce(lambda).getAsInt());
     }
 
     @Test
     public void integerToString() {
-        Function<Integer, String> lambda = defaultFactory.createLambdaUnchecked
-                ("i -> \"ABC\"+i+\"DEF\"", new TypeReference<Function<Integer, String>>() {});
+        Function<Integer, String> lambda = defaultFactory.createLambdaUnchecked(
+                "i -> \"ABC\"+i+\"DEF\"", new TypeReference<Function<Integer, String>>() {});
         assertEquals("ABC101DEF", lambda.apply(101));
     }
 
     @Test
-    public void useImportToAddBigDecimals(){
-        LambdaFactory factory = LambdaFactory.get(LambdaFactoryConfiguration.get().withImports(BigDecimal.class));
-        BiFunction<BigDecimal, BigDecimal, BigDecimal> lambda = factory.createLambdaUnchecked
-                ("(a,b) -> a.add(b)", new TypeReference<BiFunction<BigDecimal, BigDecimal, BigDecimal>>() {});
+    public void useImportToAddBigDecimals() throws LambdaCreationException {
+        LambdaFactory factory = LambdaFactory.get(
+                LambdaFactoryConfiguration.get().withImports(BigDecimal.class));
+        BiFunction<BigDecimal, BigDecimal, BigDecimal> lambda = factory.createLambda(
+                "(a,b) -> a.add(b)", new TypeReference<BiFunction<BigDecimal, BigDecimal, BigDecimal>>() {});
         assertEquals(new BigDecimal("11"), lambda.apply(BigDecimal.ONE, BigDecimal.TEN));
     }
 
@@ -51,8 +52,8 @@ public class LambdaFactoryTest {
                 LambdaFactoryConfiguration.get()
                 .withImports(BigDecimal.class)
                 .withStaticImports("java.math.BigDecimal.ONE"));
-        Function<BigDecimal, BigDecimal> lambda = factory.createLambdaUnchecked
-                ("a -> a.add(ONE)", new TypeReference< Function<BigDecimal, BigDecimal>>() {});
+        Function<BigDecimal, BigDecimal> lambda = factory.createLambdaUnchecked(
+                "a -> a.add(ONE)", new TypeReference< Function<BigDecimal, BigDecimal>>() {});
         assertEquals(new BigDecimal("11"), lambda.apply(BigDecimal.TEN));
     }
 
