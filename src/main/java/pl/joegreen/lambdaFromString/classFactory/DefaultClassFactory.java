@@ -54,7 +54,7 @@ public class DefaultClassFactory implements ClassFactory {
         return compiler;
     }
 
-    static class CannotFindJavaCompilerException extends Exception {
+    private static class CannotFindJavaCompilerException extends Exception {
         CannotFindJavaCompilerException() {
             super("ToolProvider.getSystemJavaCompiler() returned null - please check your JDK version and/or tools.jar availability.");
         }

@@ -15,7 +15,7 @@ import java.net.URI;
  */
 public class ClassSourceJavaObject extends SimpleJavaFileObject {
     private final String className;
-    private String classSource = null;
+    private final String classSource;
 
     public ClassSourceJavaObject(String className, String classCode) {
         super(URI.create("string:///"   + className.replaceAll("\\.", "/")+ Kind.SOURCE.extension), Kind.SOURCE);

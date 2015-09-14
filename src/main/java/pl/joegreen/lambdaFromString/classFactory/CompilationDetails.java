@@ -17,6 +17,18 @@ public class CompilationDetails {
         this.sourceCode = sourceCode;
     }
 
+    public List<Diagnostic<? extends JavaFileObject>> getDiagnostics() {
+        return Collections.unmodifiableList(diagnostics);
+    }
+
+    public String getClassName() {
+        return className;
+    }
+
+    public String getSourceCode() {
+        return sourceCode;
+    }
+
     @Override
     public String toString() {
         return String.format("Class compilation details:\nClass name: %s\nClass source:\n%s\nCompiler messages:\n%s",
@@ -30,17 +42,7 @@ public class CompilationDetails {
     private static String diagnosticToString(Diagnostic<?> diagnostic) {
         return String.format("%s: %s", diagnostic.getKind(), diagnostic.getMessage(null));
     }
-    public List<Diagnostic<? extends JavaFileObject>> getDiagnostics() {
-        return Collections.unmodifiableList(diagnostics);
-    }
 
-    public String getClassName() {
-        return className;
-    }
-
-    public String getSourceCode() {
-        return sourceCode;
-    }
 
 
 }

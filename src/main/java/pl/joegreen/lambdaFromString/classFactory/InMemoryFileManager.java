@@ -13,7 +13,7 @@ When java compiler is using that file manager it doesn't create output files any
 into byte arrays stored in CompiledClassJavaObject instances. The solution was inspired by
 http://javapracs.blogspot.com/2011/06/dynamic-in-memory-compilation-using.html
  */
-class InMemoryFileManager extends ForwardingJavaFileManager implements JavaFileManager {
+class InMemoryFileManager extends ForwardingJavaFileManager<JavaFileManager> implements JavaFileManager {
 
     protected InMemoryFileManager(JavaFileManager fileManager) {
         super(fileManager);
