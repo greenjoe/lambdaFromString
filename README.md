@@ -50,6 +50,17 @@ LambdaFactory instances are threadsafe.
 
 JDK provides a tools.jar file that is required to use the Java Compiler API. 
 
+## Download
+
+You can get the library from Maven Central:
+```xml
+<dependency>
+	<groupId>pl.joegreen</groupId>
+	<artifactId>lambda-from-string</artifactId>
+	<version>1.0</version>
+</dependency>
+```
+It has **no external dependencies** so you can also just [download the jar](http://repo1.maven.org/maven2/pl/joegreen/lambda-from-string/1.0/lambda-from-string-1.0.jar) and add it to your classpath. 
 
 ## How it works? 
 
