@@ -20,7 +20,7 @@ Function<Integer, String> decorate = lambdaFactory.createLambda(
         "i -> \"ABC\"+i+\"DEF\"", new TypeReference<Function<Integer, String>>(){});
 assertEquals("ABC101DEF", decorate.apply(101));
 ```
-By default only java.util.function.* is imported by the class, as it is needed by the library itself. If you would like to import additional classes, you can specify imports in the configuration, as shown below. Please note that only Java standard library classes are available on the classpath, so you cannot import your own classes. 
+By default only java.util.function.* is imported by the class, as it is needed by the library itself. If you would like to import additional classes, you can specify imports in the configuration, as shown below. Please note that only Java standard library classes are available on the compilation classpath in the current version of library, so you cannot import your own classes. 
 
 Imports can be passed as `Class<?>` instances or strings (string form is the only way to use * wildcard). Static imports are also supported and can be passed as strings. 
 
