@@ -1,4 +1,4 @@
-# Java 8 Lambda From String
+# Java 8 &ndash; Lambda from String
 
 Sometimes you may want to load a function from your application configuration file instead of a single value. 
 In that case you should probably use Nashorn JavaScript engine that comes with Java 8, as advised by [this stackoverflow answer](http://stackoverflow.com/a/22291144). 
