@@ -4,7 +4,14 @@ Sometimes you may want to load a function from your application configuration fi
 In that case you should probably use Nashorn JavaScript engine that comes with Java 8, as advised by [this stackoverflow answer](http://stackoverflow.com/a/22291144). 
 However if, for some reason, you would like to stick to Java then this library might be a good choice for you. 
 
-Let's go straight to the code examples: 
+## Reasons to use it
+LambdaFromString is a library that can generate a Java 8 lambda object at runtime from its code stored in a String. 
+* Runtime behavior change &ndash; you can change the way your applicaton behaves at runtime, without recompiling it or even shutting it down.  
+* Quick prototyping &ndash; you can quickly prototype different behaviors by just changing the code of the lambda stored in some file and making your application reload it on demand.
+* Wider configuration possibilities &ndash; you can let your users freely specify relation between some X and Y in the configuration file without constraining them by some predefined choices (let them write a code of `Function<Integer,Integer>` for example).
+* Simplicity &ndash; you can get what you would normally achieve by manually compiling a new class and loading it with a custom classloader in your application (but the library does it for you). 
+
+## Code examples 
 ```java
 LambdaFactory lambdaFactory = LambdaFactory.get();
 
