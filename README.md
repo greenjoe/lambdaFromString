@@ -11,6 +11,8 @@ LambdaFromString is a library that can generate a Java 8 lambda object at runtim
 * Wider configuration possibilities &ndash; you can let your users freely specify relation between some X and Y in the configuration file without constraining them by some predefined choices (let them write a code of `Function<Integer,Integer>` for example).
 * Simplicity &ndash; you can get what you would normally achieve by manually compiling a new class and loading it with a custom classloader in your application (but the library does it for you). 
 
+The library assumes that the lambda code is not malicious and doesn't validate it. Creating and executing lambdas based on external code can be really harmful so please make sure that it will be secure in your case. 
+
 ## Code examples 
 ```java
 LambdaFactory lambdaFactory = LambdaFactory.get();
