@@ -6,6 +6,10 @@ import java.util.List;
 import java.util.stream.Collectors;
 import java.util.stream.Stream;
 
+/**
+ * <strong>This class may change between versions</strong>.
+ * If you use it your code may not work with the next version of the library.
+ */
 public class DefaultHelperClassSourceProvider implements HelperClassSourceProvider {
     private final String template;
 

@@ -10,11 +10,15 @@ public class CompilationDetails {
     private final List<Diagnostic<? extends JavaFileObject>> diagnostics;
     private final String className;
     private final String sourceCode;
+    private final String standardError;
 
-    public CompilationDetails(String className, String sourceCode, List<Diagnostic<? extends JavaFileObject>> diagnostics) {
+    public CompilationDetails(String className, String sourceCode,
+                              List<Diagnostic<? extends JavaFileObject>> diagnostics, String standardError) {
         this.diagnostics = diagnostics;
         this.className = className;
         this.sourceCode = sourceCode;
+        this.standardError = standardError;
+
     }
 
     public List<Diagnostic<? extends JavaFileObject>> getDiagnostics() {
@@ -29,10 +33,21 @@ public class CompilationDetails {
         return sourceCode;
     }
 
+    public String getStandardError() {
+        return standardError;
+    }
+
     @Override
     public String toString() {
-        return String.format("Class compilation details:\nClass name: %s\nClass source:\n%s\nCompiler messages:\n%s",
-                className, sourceCode, diagnosticsListToString(diagnostics));
+        return String.format("Class compilation details:\n" +
+                        "Class name: %s\n" +
+                        "Class source:\n" +
+                        "%s\n" +
+                        "Compiler messages:\n" +
+                        "%s\n" +
+                        "Compiler standard error output:\n" +
+                        "%s\n",
+                className, sourceCode, diagnosticsListToString(diagnostics), standardError);
     }
 
     private static String diagnosticsListToString(List<Diagnostic<? extends JavaFileObject>> diagnostics) {

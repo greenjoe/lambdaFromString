@@ -18,7 +18,8 @@ public class ClassSourceJavaObject extends SimpleJavaFileObject {
     private final String classSource;
 
     public ClassSourceJavaObject(String className, String classCode) {
-        super(URI.create("string:///"   + className.replaceAll("\\.", "/")+ Kind.SOURCE.extension), Kind.SOURCE);
+        //needs to start with "file" or eclipse compiler throws an exception
+        super(URI.create("file:///"   + className.replaceAll("\\.", "/")+ Kind.SOURCE.extension), Kind.SOURCE);
         this.className = className;
         this.classSource = classCode;
     }

@@ -4,17 +4,22 @@ import javax.tools.DiagnosticCollector;
 import javax.tools.JavaCompiler;
 import javax.tools.JavaFileObject;
 import javax.tools.ToolProvider;
-import java.util.Collections;
-import java.util.Map;
+import java.io.StringWriter;
+import java.util.*;
 
+
+/**
+ * <strong>This class may change between versions</strong>.
+ * If you use it your code may not work with the next version of the library.
+ */
 public class DefaultClassFactory implements ClassFactory {
+
     @Override
-    public Class<?> createClass(String fullClassName, String sourceCode) throws ClassCompilationException {
+    public Class<?> createClass(String fullClassName, String sourceCode, JavaCompiler compiler) throws ClassCompilationException {
         try {
-            JavaCompiler compiler = findJavaCompiler();
-            Map<String, CompiledClassJavaObject> compiledClassesBytes = compileClasses(compiler, fullClassName, sourceCode);
+            Map<String, CompiledClassJavaObject> compiledClassesBytes = compileClasses(fullClassName, sourceCode, compiler);
             return loadClass(fullClassName, compiledClassesBytes);
-        } catch (ClassNotFoundException | CannotFindJavaCompilerException | RuntimeException e) {
+        } catch (ClassNotFoundException | RuntimeException e) {
             throw new ClassCompilationException(e);
         }
     }
@@ -23,42 +28,37 @@ public class DefaultClassFactory implements ClassFactory {
         return (new InMemoryClassLoader(compiledClassesBytes)).loadClass(fullClassName);
     }
 
-    protected Map<String, CompiledClassJavaObject> compileClasses(JavaCompiler compiler, String fullClassName, String sourceCode) throws ClassCompilationException {
+    protected Map<String, CompiledClassJavaObject> compileClasses(
+            String fullClassName, String sourceCode, JavaCompiler compiler) throws ClassCompilationException {
+
         ClassSourceJavaObject classSourceObject = new ClassSourceJavaObject(fullClassName, sourceCode);
-        Map<String, CompiledClassJavaObject> compiledClassesBytes;
-               /*
+        /*
          * diagnosticListener = null -> compiler's default reporting
 		 * diagnostics; locale = null -> default locale to format diagnostics;
 		 * charset = null -> uses platform default charset
 		 */
         try (InMemoryFileManager stdFileManager = new InMemoryFileManager(compiler.getStandardFileManager(null, null, null))) {
-
+            StringWriter stdErrWriter = new StringWriter();
             DiagnosticCollector<JavaFileObject> diagnosticsCollector = new DiagnosticCollector<>();
-            JavaCompiler.CompilationTask compilationTask = compiler.getTask(null,
+            JavaCompiler.CompilationTask compilationTask = compiler.getTask(stdErrWriter,
                     stdFileManager, diagnosticsCollector,
-                    Collections.emptyList(), null, Collections.singletonList(classSourceObject));
+                    getDefaultCompilerOptions(), null, Collections.singletonList(classSourceObject));
 
             boolean status = compilationTask.call();
             if (!status) {
-                throw new ClassCompilationException(new CompilationDetails(fullClassName, sourceCode, diagnosticsCollector.getDiagnostics()));
+                throw new ClassCompilationException(
+                        new CompilationDetails(fullClassName, sourceCode,
+                                diagnosticsCollector.getDiagnostics(), stdErrWriter.toString()));
             }
             return stdFileManager.getClasses();
         }
     }
 
-    private JavaCompiler findJavaCompiler() throws CannotFindJavaCompilerException {
-        JavaCompiler compiler = ToolProvider.getSystemJavaCompiler();
-        if (compiler == null) {
-            throw new CannotFindJavaCompilerException();
-        }
-        return compiler;
+    protected List<String> getDefaultCompilerOptions(){
+        return Arrays.asList("-target", "1.8", "-source", "1.8");
     }
 
-    private static class CannotFindJavaCompilerException extends Exception {
-        CannotFindJavaCompilerException() {
-            super("ToolProvider.getSystemJavaCompiler() returned null - please check your JDK version and/or tools.jar availability.");
-        }
-    }
+
 }
 
 
