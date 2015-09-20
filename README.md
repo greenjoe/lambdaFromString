@@ -55,15 +55,9 @@ The library is rather intended to be used once during the configuration reading 
 LambdaFactory instances are threadsafe. 
 
 
-## Requirements 
-* Java 8
-* Using JDK to run the application, JRE is not enough
-
-JDK provides a tools.jar file that is required to use the Java Compiler API. 
-
-## Download
-
-You can get the library from Maven Central:
+## Requirements and downloads 
+The library works only with __Java 8__.
+You can get it from Maven Central:
 ```xml
 <dependency>
 	<groupId>pl.joegreen</groupId>
@@ -71,7 +65,19 @@ You can get the library from Maven Central:
 	<version>1.0</version>
 </dependency>
 ```
-It has **no external dependencies** so you can also just [download the jar](http://repo1.maven.org/maven2/pl/joegreen/lambda-from-string/1.0/lambda-from-string-1.0.jar) and add it to your classpath. 
+It has only one external Maven dependency: [Eclipse JDT Core Batch Compiler](http://mvnrepository.com/artifact/org.eclipse.jdt.core.compiler/ecj). That dependency was added because Java compiler is a part of JDK (located in tools.jar) and it's not available in pure JRE. When client applications were running on JRE then no Java compiler was available at runtime and the LambdaFromString library failed to compile lambda code. Eclipse ECJ makes it possible to use LambdaFromString even in cases when only JRE is available at runtime. 
+
+### Running without Eclipse ECJ 
+If you are sure that your application will be running on JDK and you want to use default compiler instead of Eclipse ECJ you can exclude that dependency in Maven by adding exclusions inside the `<dependency>` tag:  
+```xml
+<exclusions>
+	<exclusion>
+		<groupId>org.eclipse.jdt.core.compiler</groupId>
+		<artifactId>ecj</artifactId>
+	</exclusion>
+</exclusions>
+```
+In that case you can also use lambdaFromString without Maven by just downloading a [single jar](http://central.maven.org/maven2/pl/joegreen/lambda-from-string/1.1/lambda-from-string-1.1.jar). 
 
 ## How it works? 
 
