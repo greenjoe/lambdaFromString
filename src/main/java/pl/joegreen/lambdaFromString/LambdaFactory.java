@@ -96,4 +96,41 @@ public class LambdaFactory {
             throw new LambdaCreationRuntimeException(e);
         }
     }
+
+  /**
+   * Creates a lambda from the given code
+   * @param code source of the lambda as you would write it in Java expression  {TYPE} lambda = ({CODE});
+   * @param typeString the type string (as would be created by a TypeReference class)
+   *                   , for example {@code "Function<Integer,Integer>>"}
+   * @return the lambda object
+   * @throws LambdaCreationException
+   */
+    public Object createLambda(String code, String typeString) throws LambdaCreationException {
+        String helperClassSource = helperProvider.getHelperClassSource(typeString, code, imports, staticImports);
+        try {
+            Class<?> helperClass = classFactory.createClass(helperProvider.getHelperClassName(), helperClassSource, javaCompiler);
+            Method lambdaReturningMethod = helperClass.getMethod(helperProvider.getLambdaReturningMethodName());
+            Object lambda = lambdaReturningMethod.invoke(null);
+            return lambda;
+        } catch (ReflectiveOperationException | RuntimeException e) {
+            throw new LambdaCreationException(e);
+        } catch (ClassCompilationException classCompilationException) {
+            // knows type of the cause so it get CompilationDetails
+            throw new LambdaCreationException(classCompilationException);
+        }
+    }
+
+    /**
+     * Convenience wrapper for {@link #createLambda(String, String)}
+     * which throws unchecked exception instead of checked one.
+     *
+     * @see #createLambda(String, String)
+     */
+    public Object createLambdaUnchecked(String code, String typeString) {
+        try {
+            return createLambda(code, typeString);
+        } catch (LambdaCreationException e) {
+            throw new LambdaCreationRuntimeException(e);
+        }
+    }
 }
