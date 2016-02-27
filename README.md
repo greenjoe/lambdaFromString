@@ -62,7 +62,7 @@ You can get it from Maven Central:
 <dependency>
 	<groupId>pl.joegreen</groupId>
 	<artifactId>lambda-from-string</artifactId>
-	<version>1.1</version>
+	<version>1.2</version>
 </dependency>
 ```
 It has only one external Maven dependency: [Eclipse JDT Core Batch Compiler](http://mvnrepository.com/artifact/org.eclipse.jdt.core.compiler/ecj). That dependency was added because Java compiler is a part of JDK (located in tools.jar) and it's not available in pure JRE. When client applications were running on JRE then no Java compiler was available at runtime and the LambdaFromString library failed to compile lambda code. Eclipse ECJ makes it possible to use LambdaFromString even in cases when only JRE is available at runtime. 
@@ -77,7 +77,7 @@ If you are sure that your application will be running on JDK and you want to use
 	</exclusion>
 </exclusions>
 ```
-In that case you can also use lambdaFromString without Maven by just downloading a [single jar](http://central.maven.org/maven2/pl/joegreen/lambda-from-string/1.1/lambda-from-string-1.1.jar). 
+In that case you can also use lambdaFromString without Maven by just downloading a [single jar](http://central.maven.org/maven2/pl/joegreen/lambda-from-string/1.2/lambda-from-string-1.2.jar). 
 
 ## How it works? 
 
