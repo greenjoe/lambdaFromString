@@ -101,6 +101,20 @@ public class LambdaFactoryTest {
         assertEquals("test", object.toString());
     }
 
+    @Test
+    @SuppressWarnings("unchecked")
+    public void integerIncrementWithDynamicTypeReference() {
+        Function<Integer, Integer> lambda = (Function<Integer, Integer>) factory.createLambdaUnchecked(
+                "i -> i+1", new DynamicTypeReference("Function<Integer,Integer>"));
+        assertTrue(1 == lambda.apply(0));
+    }
+
+    @Test
+    public void integerMultiplyWithDynamicTypeReference(){
+        IntBinaryOperator lambda = (IntBinaryOperator) factory.createLambdaUnchecked(
+                "(a,b) -> a*b", new DynamicTypeReference("IntBinaryOperator"));
+        assertEquals(1 * 2 * 3 * 4, IntStream.range(1, 5).reduce(lambda).getAsInt());
+    }
 
     @Test(expected = LambdaCreationException.class)
     public void exceptionContainsCompilationDetailsWhenCompilationFails() throws LambdaCreationException {
