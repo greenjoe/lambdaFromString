@@ -8,7 +8,7 @@ public class DefaultCompilerSetter {
 
     public static void setDefaultCompiler(JavaCompiler compiler) {
         try {
-            Field defaultCompilerField = LambdaFactory.class.getDeclaredField("DEFAULT_COMPILER");
+            Field defaultCompilerField = LambdaFactoryConfiguration.class.getDeclaredField("DEFAULT_COMPILER");
             defaultCompilerField.setAccessible(true);
             defaultCompilerField.set(null, Optional.of(compiler));
         } catch (Exception e) {

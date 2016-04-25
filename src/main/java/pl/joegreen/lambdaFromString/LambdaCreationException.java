@@ -12,8 +12,9 @@ public class LambdaCreationException extends Exception {
         super(classCompilationException);
         compilationDetails = classCompilationException.getCompilationDetails();
     }
-    public LambdaCreationException(Exception ex) {
-        super(ex);
+
+    public LambdaCreationException(Throwable t) {
+        super(t);
         compilationDetails = Optional.empty();
     }
 

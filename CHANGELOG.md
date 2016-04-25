@@ -1,3 +1,6 @@
+# 1.3
+* Custom compilation class path. User can now specify a class path and a class loader used when creating lambda. By default, current JVM class path is used. Thanks to that users can now use custom classes and interfaces in lambda codes (previously only standard library classes were available).
+
 # 1.2
 * Dynamic type references. User can now pass a String type name to the constructor of the DynamicTypeReference class instead of statically creating a TypeReference instance with an appropriate generic type.
 

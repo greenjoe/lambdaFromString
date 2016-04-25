@@ -4,9 +4,17 @@ import org.eclipse.jdt.internal.compiler.tool.EclipseCompiler;
 import org.junit.Test;
 import org.junit.runner.RunWith;
 import org.junit.runners.Parameterized;
+import pl.joegreen.lambdaFromString.dummy.CustomInterface;
+import pl.joegreen.lambdaFromString.dummy.CustomInterfaceUsingInnerClass;
 
 import javax.tools.JavaCompiler;
+import java.io.File;
+import java.lang.reflect.InvocationTargetException;
+import java.lang.reflect.Method;
 import java.math.BigDecimal;
+import java.net.MalformedURLException;
+import java.net.URL;
+import java.net.URLClassLoader;
 import java.util.Arrays;
 import java.util.function.BiFunction;
 import java.util.function.Function;
@@ -114,6 +122,59 @@ public class LambdaFactoryTest {
         IntBinaryOperator lambda = (IntBinaryOperator) factory.createLambdaUnchecked(
                 "(a,b) -> a*b", new DynamicTypeReference("IntBinaryOperator"));
         assertEquals(1 * 2 * 3 * 4, IntStream.range(1, 5).reduce(lambda).getAsInt());
+    }
+
+    @Test
+    public void lambdaImplementingNonStandardInterface(){
+        LambdaFactory factory = LambdaFactory.get(
+                LambdaFactoryConfiguration.get()
+                        .withImports(CustomInterface.class));
+        String code = " x -> 10";
+        CustomInterface lambda = factory.createLambdaUnchecked(code, new TypeReference<CustomInterface>() {});
+        assertEquals(lambda.customFunction("abc"), 10);
+    }
+
+
+    @Test
+    public void lambdaImplementingBinaryClassFileOnCustomClassPath() throws MalformedURLException, ClassNotFoundException, NoSuchMethodException, InvocationTargetException, IllegalAccessException {
+        String pathToCompiledInterface = this.getClass().getClassLoader().getResource("binaryFileTests/CustomCompiledStringMapperInterface.class").getFile();
+        String classPath = new File(pathToCompiledInterface).getParent().toString();
+        ClassLoader customClassLoader = new URLClassLoader(new URL[]{new File(classPath).toURI().toURL()});
+        LambdaFactory factory = LambdaFactory.get(
+                LambdaFactoryConfiguration.get()
+                        .withCompilationClassPath(classPath)
+                        .withParentClassLoader(customClassLoader)
+        );
+        String code = " x -> x.toUpperCase()";
+        Object lambda = factory.createLambdaUnchecked(code, new DynamicTypeReference("CustomCompiledStringMapperInterface"));
+        Class<?> customInterfaceClass = customClassLoader.loadClass("CustomCompiledStringMapperInterface");
+        Object uppercaseMapperImpl = customInterfaceClass.cast(lambda);
+        Method mappingMethod = customInterfaceClass.getMethod("map", String.class);
+        assertEquals("ALA", mappingMethod.invoke(uppercaseMapperImpl, "ala"));
+    }
+
+
+    @Test
+    public void lambdaImplementingNonStandardInterfaceUsingInnerClass(){
+        LambdaFactory factory = LambdaFactory.get(
+                LambdaFactoryConfiguration.get()
+                        .withImports(CustomInterfaceUsingInnerClass.class,
+                                CustomInterfaceUsingInnerClass.InnerClass.class)
+        );
+        String code = " () -> new InnerClass()";
+        CustomInterfaceUsingInnerClass lambda = factory.createLambdaUnchecked(code, new TypeReference<CustomInterfaceUsingInnerClass>() {});
+        assertEquals(CustomInterfaceUsingInnerClass.InnerClass.class, lambda.createInnerClass().getClass());
+    }
+
+    @Test
+    public void lambdaImplementingNonStandardInterfaceWithThreadContextClassPath(){
+        LambdaFactory factory = LambdaFactory.get(
+                LambdaFactoryConfiguration.get()
+                        .withCompilationClassPath(ClassPathExtractor.getCurrentContextClassLoaderClassPath())
+                        .withImports(CustomInterface.class));
+        String code = " x -> 10";
+        CustomInterface customInterface = factory.createLambdaUnchecked(code, new TypeReference<CustomInterface>() {});
+        assertEquals(customInterface.customFunction("abc"), 10);
     }
 
     @Test(expected = LambdaCreationException.class)

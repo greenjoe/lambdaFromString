@@ -5,12 +5,11 @@ import pl.joegreen.lambdaFromString.classFactory.ClassFactory;
 
 import javax.tools.JavaCompiler;
 import java.lang.reflect.Method;
+import java.util.Arrays;
 import java.util.List;
 import java.util.Optional;
 
 public class LambdaFactory {
-
-    protected static Optional<JavaCompiler> DEFAULT_COMPILER = JavaCompilerProvider.findDefaultJavaCompiler();
 
     /**
      * Returns a LambdaFactory instance with default configuration.
@@ -26,19 +25,15 @@ public class LambdaFactory {
      * in the configuration
      */
     public static LambdaFactory get(LambdaFactoryConfiguration configuration) {
-        JavaCompiler compiler = getConfiguredOrDefaultCompiler(configuration);
+        JavaCompiler compiler = Optional.ofNullable(configuration.getJavaCompiler()).orElseThrow(JavaCompilerNotFoundException::new);
         return new LambdaFactory(
                 configuration.getDefaultHelperClassSourceProvider(),
                 configuration.getClassFactory(),
                 compiler,
                 configuration.getImports(),
-                configuration.getStaticImports());
-    }
-
-    private static JavaCompiler getConfiguredOrDefaultCompiler(LambdaFactoryConfiguration configuration) {
-        return configuration.getJavaCompiler()
-                .orElse(DEFAULT_COMPILER
-                        .orElseThrow(JavaCompilerNotFoundException::new));
+                configuration.getStaticImports(),
+                configuration.getCompilationClassPath(),
+                configuration.getParentClassLoader());
     }
 
     private final HelperClassSourceProvider helperProvider;
@@ -46,14 +41,19 @@ public class LambdaFactory {
     private final JavaCompiler javaCompiler;
     private final List<String> imports;
     private final List<String> staticImports;
+    private final String compilationClassPath;
+    private final ClassLoader parentClassLoader;
 
     private LambdaFactory(HelperClassSourceProvider helperProvider, ClassFactory classFactory,
-                          JavaCompiler javaCompiler, List<String> imports, List<String> staticImports) {
+                          JavaCompiler javaCompiler, List<String> imports, List<String> staticImports,
+                          String compilationClassPath, ClassLoader parentClassLoader) {
         this.helperProvider = helperProvider;
         this.classFactory = classFactory;
         this.javaCompiler = javaCompiler;
         this.imports = imports;
         this.staticImports = staticImports;
+        this.compilationClassPath = compilationClassPath;
+        this.parentClassLoader = parentClassLoader;
     }
 
     /**
@@ -69,18 +69,23 @@ public class LambdaFactory {
     public <T> T createLambda(String code, TypeReference<T> typeReference) throws LambdaCreationException {
         String helperClassSource = helperProvider.getHelperClassSource(typeReference.toString(), code, imports, staticImports);
         try {
-            Class<?> helperClass = classFactory.createClass(helperProvider.getHelperClassName(), helperClassSource, javaCompiler);
+            Class<?> helperClass = classFactory.createClass(helperProvider.getHelperClassName(), helperClassSource, javaCompiler, createOptionsForCompilationClasspath(compilationClassPath), parentClassLoader);
             Method lambdaReturningMethod = helperClass.getMethod(helperProvider.getLambdaReturningMethodName());
             @SuppressWarnings("unchecked")
             // the whole point of the class template and runtime compilation is to make this cast work well :-)
                     T lambda = (T) lambdaReturningMethod.invoke(null);
             return lambda;
-        } catch (ReflectiveOperationException | RuntimeException e) {
+        } catch (ReflectiveOperationException | RuntimeException | NoClassDefFoundError e) {
+            // NoClassDefFoundError can be thrown if provided parent class loader cannot load classes used by the lambda
             throw new LambdaCreationException(e);
         } catch (ClassCompilationException classCompilationException) {
-            // knows type of the cause so it get CompilationDetails
+            // that catch differs from the catch above as the exact exception type is known and additional details can be extracted
             throw new LambdaCreationException(classCompilationException);
         }
+    }
+
+    private List<String> createOptionsForCompilationClasspath(String compilationClassPath) {
+        return Arrays.asList("-classpath", compilationClassPath);
     }
 
     /**

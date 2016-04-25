@@ -31,9 +31,9 @@ assertEquals("ABC101DEF", decorate.apply(101));
 ```
 (You can visit [tests directory](https://github.com/greenjoe/lambdaFromString/tree/master/src/test/java/pl/joegreen/lambdaFromString) to see additional examples.)
 
-By default only java.util.function.* is imported by the class, as it is needed by the library itself. If you would like to import additional classes, you can specify imports in the configuration, as shown below. Please note that only Java standard library classes are available on the compilation classpath in the current version of library, so you cannot import your own classes. 
+By default only java.util.function.* is imported by the class, as it is needed by the library itself. If you would like to import additional classes, you can specify imports in the configuration, as shown below. Please note that classes used in a lambda need to be available on the classpath used by the library. It can be configured, by default the java.class.path system property is used (it should work fine in most cases).
 
-Imports can be passed as `Class<?>` instances or strings (string form is the only way to use * wildcard). Static imports are also supported and can be passed as strings. 
+Imports can be passed as `Class<?>` instances or strings (string form is the only way to use wildcards). Static imports are also supported and can be passed as strings.
 
 ```java
 LambdaFactory factory = LambdaFactory.get(
@@ -62,7 +62,7 @@ You can get it from Maven Central:
 <dependency>
 	<groupId>pl.joegreen</groupId>
 	<artifactId>lambda-from-string</artifactId>
-	<version>1.2</version>
+	<version>1.3</version>
 </dependency>
 ```
 It has only one external Maven dependency: [Eclipse JDT Core Batch Compiler](http://mvnrepository.com/artifact/org.eclipse.jdt.core.compiler/ecj). That dependency was added because Java compiler is a part of JDK (located in tools.jar) and it's not available in pure JRE. When client applications were running on JRE then no Java compiler was available at runtime and the LambdaFromString library failed to compile lambda code. Eclipse ECJ makes it possible to use LambdaFromString even in cases when only JRE is available at runtime. 
@@ -77,7 +77,7 @@ If you are sure that your application will be running on JDK and you want to use
 	</exclusion>
 </exclusions>
 ```
-In that case you can also use lambdaFromString without Maven by just downloading a [single jar](http://central.maven.org/maven2/pl/joegreen/lambda-from-string/1.2/lambda-from-string-1.2.jar). 
+In that case you can also use lambdaFromString without Maven by just downloading a [single jar](http://central.maven.org/maven2/pl/joegreen/lambda-from-string/1.2/lambda-from-string-1.2.jar).
 
 ## How it works? 
 

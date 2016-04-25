@@ -6,7 +6,8 @@ class InMemoryClassLoader extends ClassLoader {
 
     private final Map<String, CompiledClassJavaObject> classes;
 
-    public InMemoryClassLoader(Map<String, CompiledClassJavaObject> classes) {
+    public InMemoryClassLoader(Map<String, CompiledClassJavaObject> classes, ClassLoader parentClassLoader) {
+        super(parentClassLoader);
         this.classes = classes;
     }
 
@@ -21,7 +22,11 @@ class InMemoryClassLoader extends ClassLoader {
 
     @Override
     protected Class<?> findClass(String name) throws ClassNotFoundException {
-        byte[] classBytes = classes.get(name).getBytes();
-        return defineClass(name,classBytes,0, classBytes.length);
+        if (classes.containsKey(name)) {
+            byte[] classBytes = classes.get(name).getBytes();
+            return defineClass(name, classBytes, 0, classBytes.length);
+        }else{
+            throw new ClassNotFoundException("Class " + name  + " could not be found in the in-memory collection of compiled classes or in the parent class loader.");
+        }
     }
 }

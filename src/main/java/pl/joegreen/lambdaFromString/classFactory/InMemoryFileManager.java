@@ -2,8 +2,9 @@ package pl.joegreen.lambdaFromString.classFactory;
 
 import javax.tools.FileObject;
 import javax.tools.ForwardingJavaFileManager;
-import javax.tools.JavaFileManager;
 import javax.tools.JavaFileObject;
+import javax.tools.StandardJavaFileManager;
+import java.io.File;
 import java.io.IOException;
 import java.util.HashMap;
 import java.util.Map;
@@ -13,9 +14,9 @@ When java compiler is using that file manager it doesn't create output files any
 into byte arrays stored in CompiledClassJavaObject instances. The solution was inspired by
 http://javapracs.blogspot.com/2011/06/dynamic-in-memory-compilation-using.html
  */
-class InMemoryFileManager extends ForwardingJavaFileManager<JavaFileManager> implements JavaFileManager {
+class InMemoryFileManager extends ForwardingJavaFileManager<StandardJavaFileManager> implements StandardJavaFileManager {
 
-    protected InMemoryFileManager(JavaFileManager fileManager) {
+    protected InMemoryFileManager(StandardJavaFileManager fileManager) {
         super(fileManager);
     }
 
@@ -42,5 +43,36 @@ class InMemoryFileManager extends ForwardingJavaFileManager<JavaFileManager> imp
         }catch (IOException ex){
             // if we only work in-memory so IOException on close should not matter
         }
+    }
+
+
+    @Override
+    public Iterable<? extends JavaFileObject> getJavaFileObjectsFromFiles(Iterable<? extends File> files) {
+        return fileManager.getJavaFileObjectsFromFiles(files);
+    }
+
+    @Override
+    public Iterable<? extends JavaFileObject> getJavaFileObjects(File... files) {
+        return fileManager.getJavaFileObjects(files);
+    }
+
+    @Override
+    public Iterable<? extends JavaFileObject> getJavaFileObjectsFromStrings(Iterable<String> names) {
+        return fileManager.getJavaFileObjectsFromStrings(names);
+    }
+
+    @Override
+    public Iterable<? extends JavaFileObject> getJavaFileObjects(String... names) {
+        return fileManager.getJavaFileObjects(names);
+    }
+
+    @Override
+    public void setLocation(Location location, Iterable<? extends File> path) throws IOException {
+        fileManager.setLocation(location, path);
+    }
+
+    @Override
+    public Iterable<? extends File> getLocation(Location location) {
+        return fileManager.getLocation(location);
     }
 }
