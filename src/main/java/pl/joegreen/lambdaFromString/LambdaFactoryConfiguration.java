@@ -119,8 +119,9 @@ public class LambdaFactoryConfiguration {
         return withImports(stringImports);
     }
 
-    /** Overrides default compilation classpath (default is taken from the java.class.path system property).
-     * Changing the classpath may sometimes result in a need to provide a custom parent class loader {@link #withParentClassLoader(ClassLoader)
+    /**
+     * Overrides default compilation classpath (default is taken from the java.class.path system property).
+     * Changing the classpath may sometimes result in a need to provide a custom parent class loader {@link #withParentClassLoader(ClassLoader)}
      * so that it can load classes provided in the given class path.
      */
     public LambdaFactoryConfiguration withCompilationClassPath(String compilationClassPath) {
