@@ -166,17 +166,6 @@ public class LambdaFactoryTest {
         assertEquals(CustomInterfaceUsingInnerClass.InnerClass.class, lambda.createInnerClass().getClass());
     }
 
-    @Test
-    public void lambdaImplementingNonStandardInterfaceWithThreadContextClassPath(){
-        LambdaFactory factory = LambdaFactory.get(
-                LambdaFactoryConfiguration.get()
-                        .withCompilationClassPath(ClassPathExtractor.getCurrentContextClassLoaderClassPath())
-                        .withImports(CustomInterface.class));
-        String code = " x -> 10";
-        CustomInterface customInterface = factory.createLambdaUnchecked(code, new TypeReference<CustomInterface>() {});
-        assertEquals(customInterface.customFunction("abc"), 10);
-    }
-
     @Test(expected = LambdaCreationException.class)
     public void exceptionContainsCompilationDetailsWhenCompilationFails() throws LambdaCreationException {
         try {
