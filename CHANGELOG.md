@@ -1,3 +1,6 @@
+# 1.4
+* Decoding URLs returned by URLClassLoader in ClassPathExtractor#getCurrentContextClassLoaderClassPath to prevent spaces being converted to %20.
+
 # 1.3
 * Custom compilation class path. User can now specify a class path and a class loader used when creating lambda. By default, current JVM class path is used. Thanks to that users can now use custom classes and interfaces in lambda codes (previously only standard library classes were available).
 

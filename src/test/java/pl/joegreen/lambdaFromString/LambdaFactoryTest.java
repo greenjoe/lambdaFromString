@@ -8,11 +8,8 @@ import pl.joegreen.lambdaFromString.dummy.CustomInterface;
 import pl.joegreen.lambdaFromString.dummy.CustomInterfaceUsingInnerClass;
 
 import javax.tools.JavaCompiler;
-import java.io.File;
-import java.lang.reflect.InvocationTargetException;
 import java.lang.reflect.Method;
 import java.math.BigDecimal;
-import java.net.MalformedURLException;
 import java.net.URL;
 import java.net.URLClassLoader;
 import java.util.Arrays;
@@ -136,13 +133,31 @@ public class LambdaFactoryTest {
 
 
     @Test
-    public void lambdaImplementingBinaryClassFileOnCustomClassPath() throws MalformedURLException, ClassNotFoundException, NoSuchMethodException, InvocationTargetException, IllegalAccessException {
-        String pathToCompiledInterface = this.getClass().getClassLoader().getResource("binaryFileTests/CustomCompiledStringMapperInterface.class").getFile();
-        String classPath = new File(pathToCompiledInterface).getParent().toString();
-        ClassLoader customClassLoader = new URLClassLoader(new URL[]{new File(classPath).toURI().toURL()});
+    public void lambdaImplementingBinaryClassFileOnCustomClassPath() throws Exception{
+        URL classPathDirectory = this.getClass().getClassLoader().getResource("binaryFileTests/");
+        URLClassLoader customClassLoader = new URLClassLoader(new URL[]{classPathDirectory});
+        String classPathExtractedFromClassLoader = ClassPathExtractor.getUrlClassLoaderClassPath(customClassLoader);
         LambdaFactory factory = LambdaFactory.get(
                 LambdaFactoryConfiguration.get()
-                        .withCompilationClassPath(classPath)
+                        .withCompilationClassPath(classPathExtractedFromClassLoader)
+                        .withParentClassLoader(customClassLoader)
+        );
+        String code = " x -> x.toUpperCase()";
+        Object lambda = factory.createLambdaUnchecked(code, new DynamicTypeReference("CustomCompiledStringMapperInterface"));
+        Class<?> customInterfaceClass = customClassLoader.loadClass("CustomCompiledStringMapperInterface");
+        Object uppercaseMapperImpl = customInterfaceClass.cast(lambda);
+        Method mappingMethod = customInterfaceClass.getMethod("map", String.class);
+        assertEquals("ALA", mappingMethod.invoke(uppercaseMapperImpl, "ala"));
+    }
+
+    @Test
+    public void lambdaImplementingBinaryClassFileOnCustomClassPathContainingSpace() throws Exception{
+        URL classPathDirectory = this.getClass().getClassLoader().getResource("binaryFileTests/with space/");
+        URLClassLoader customClassLoader = new URLClassLoader(new URL[]{classPathDirectory});
+        String classPathExtractedFromClassLoader = ClassPathExtractor.getUrlClassLoaderClassPath(customClassLoader);
+        LambdaFactory factory = LambdaFactory.get(
+                LambdaFactoryConfiguration.get()
+                        .withCompilationClassPath(classPathExtractedFromClassLoader)
                         .withParentClassLoader(customClassLoader)
         );
         String code = " x -> x.toUpperCase()";
