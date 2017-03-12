@@ -95,3 +95,5 @@ The class is loaded by a custom class loader and then reflection is used to call
 
 ## Contribution
 Issues and pull requests are welcome. By contributing, you agree to allow the project owner to license your work under the the terms of the [MIT license](LICENSE). 
+
+[![Build Status](https://travis-ci.org/greenjoe/lambdaFromString.svg?branch=master)](https://travis-ci.org/greenjoe/lambdaFromString)
