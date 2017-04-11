@@ -1,5 +1,7 @@
 package pl.joegreen.lambdaFromString;
 
+import org.apache.commons.lang3.reflect.TypeUtils;
+
 import java.lang.reflect.ParameterizedType;
 import java.lang.reflect.Type;
 
@@ -35,8 +37,23 @@ public abstract class TypeReference<T> {
     }
 
     @Override
-    public final String toString() {
-        return type.getTypeName();
+    public String toString() {
+        return fixCommonsLangArrayTypeBug(TypeUtils.toString(type));
+    }
+
+    private String fixCommonsLangArrayTypeBug(String typeText) {
+        /* The bug is already fixed in Apache Commons master branch:
+         * https://github.com/apache/commons-lang/commit/1661e5519c4836a5a940b13b7797263443156fc9
+         * Unfortunately it's not fixed in the latest version (3.5) and it doesn't look like there will be a new release soon,
+         * so it's better to temporarily fix it here than to rely on snapshot build of Apache Commons Lang3.
+         */
+        if (typeText.contains("[L")) {
+            return typeText.replace("[L", "")
+                    .replace(";", "[]")
+                    .replace("$", ".");
+        } else {
+            return typeText;
+        }
     }
 
 

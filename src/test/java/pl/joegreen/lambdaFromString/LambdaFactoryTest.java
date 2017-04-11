@@ -12,7 +12,10 @@ import java.lang.reflect.Method;
 import java.math.BigDecimal;
 import java.net.URL;
 import java.net.URLClassLoader;
+import java.util.AbstractMap.SimpleEntry;
+import java.util.ArrayList;
 import java.util.Arrays;
+import java.util.List;
 import java.util.function.BiFunction;
 import java.util.function.Function;
 import java.util.function.IntBinaryOperator;
@@ -104,6 +107,33 @@ public class LambdaFactoryTest {
         Supplier<Object> lambda = factory.createLambdaUnchecked(code, new TypeReference<Supplier<Object>>() {});
         Object object = lambda.get();
         assertEquals("test", object.toString());
+    }
+
+    @Test
+    public void lambdaCreatingMapEntry() {
+        String code = "(str, num) -> new SimpleEntry<String, Long>(str, num)";
+        LambdaFactory factory = LambdaFactory.get(
+                LambdaFactoryConfiguration.get()
+                        .withImports(SimpleEntry.class)
+        );
+        BiFunction<String, Long, SimpleEntry<String, Long>> lambda
+                = factory.createLambdaUnchecked(code, new TypeReference<BiFunction<String, Long, SimpleEntry<String, Long>>>() {});
+        SimpleEntry se = lambda.apply("a", 1L);
+        assertEquals(new SimpleEntry<>("a", 1L), se);
+    }
+
+
+    @Test
+    public void lambdaCreatingComplicatedGenericType() {
+        String code = "() -> ( x -> new ArrayList<>())";
+        LambdaFactory factory = LambdaFactory.get(
+                LambdaFactoryConfiguration.get()
+                        .withImports(SimpleEntry.class, ArrayList.class)
+        );
+        Supplier<Function<CustomInterfaceUsingInnerClass.InnerClass[], List<SimpleEntry<?, ?>>>> lambda =
+                 factory.createLambdaUnchecked(code, new TypeReference<Supplier<Function<CustomInterfaceUsingInnerClass.InnerClass[], List<SimpleEntry<?, ?>>>>>() {});
+        Function<CustomInterfaceUsingInnerClass.InnerClass[], List<SimpleEntry<?, ?>>> function = lambda.get();
+        assertEquals(new ArrayList<SimpleEntry<?, ?>>(), function.apply(null));
     }
 
     @Test

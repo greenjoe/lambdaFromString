@@ -1,3 +1,6 @@
+# 1.5
+* Additional maven dependency to Apache Commons Lang3. Fixes type description generation in more complicated cases where inner classes are involved(#8).
+
 # 1.4
 * Decoding URLs returned by URLClassLoader in ClassPathExtractor#getCurrentContextClassLoaderClassPath to prevent spaces being converted to %20.
 
