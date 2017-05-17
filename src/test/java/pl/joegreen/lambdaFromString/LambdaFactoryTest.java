@@ -237,4 +237,22 @@ public class LambdaFactoryTest {
         factory.createLambdaUnchecked("", new TypeReference<Supplier<Object>>() {});
     }
 
+
+    @Test
+    @SuppressWarnings("unchecked")
+    public void dynamicIntegerIncrement() {
+        TypeReference<?> type = new TypeReference<Function<Integer, Integer>>() {};
+        Function<Integer, Integer> lambda = (Function<Integer, Integer>)factory.createLambdaUnchecked(
+                "i -> i+1", type.toString());
+        assertTrue(1 == lambda.apply(0));
+    }
+
+    @Test
+    @SuppressWarnings("unchecked")
+    public void dynamicIntegerMultiply(){
+        TypeReference<?> type = new TypeReference<IntBinaryOperator>() {};
+        IntBinaryOperator lambda = (IntBinaryOperator)factory.createLambdaUnchecked(
+                "(a,b) -> a*b", type.toString());
+        assertEquals(1 * 2 * 3 * 4, IntStream.range(1, 5).reduce(lambda).getAsInt());
+    }
 }
