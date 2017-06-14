@@ -1,3 +1,6 @@
+# 1.6
+* Apache Commons Lang3 version changed to 3.6. Removed array types description generation workaround as it not necessary anymore.
+
 # 1.5
 * Additional maven dependency to Apache Commons Lang3. Fixes type description generation in more complicated cases where inner classes are involved(#8).
 

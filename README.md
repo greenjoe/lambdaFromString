@@ -62,7 +62,7 @@ You can get it from Maven Central:
 <dependency>
 	<groupId>pl.joegreen</groupId>
 	<artifactId>lambda-from-string</artifactId>
-	<version>1.5</version>
+	<version>1.6</version>
 </dependency>
 ```
 It has two external Maven dependencies:
