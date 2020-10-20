@@ -19,6 +19,7 @@ public class LambdaFactoryConfiguration {
     private String compilationClassPath;
     private ClassLoader parentClassLoader;
     private JavaCompiler javaCompiler;
+    private boolean enablePreview;
 
     public static LambdaFactoryConfiguration get() {
         return new LambdaFactoryConfiguration();
@@ -32,6 +33,7 @@ public class LambdaFactoryConfiguration {
         compilationClassPath = ClassPathExtractor.getJavaPropertyClassPath();
         parentClassLoader = this.getClass().getClassLoader();
         javaCompiler = DEFAULT_COMPILER.orElse(null);
+        enablePreview = false;
     }
 
     private LambdaFactoryConfiguration copy() {
@@ -42,7 +44,8 @@ public class LambdaFactoryConfiguration {
                 .setImports(imports)
                 .setCompilationClassPath(compilationClassPath)
                 .setParentClassLoader(parentClassLoader)
-                .setJavaCompiler(javaCompiler);
+                .setJavaCompiler(javaCompiler)
+                .setEnablePreview(enablePreview);
     }
 
 
@@ -72,6 +75,10 @@ public class LambdaFactoryConfiguration {
 
     public JavaCompiler getJavaCompiler() {
         return javaCompiler;
+    }
+    
+    public boolean getEnablePreview() {
+    	return enablePreview;
     }
 
     /**
@@ -146,6 +153,10 @@ public class LambdaFactoryConfiguration {
         return copy().setJavaCompiler(javaCompiler);
     }
 
+    public LambdaFactoryConfiguration withEnablePreview(boolean enablePreview) {
+    	return copy().setEnablePreview(enablePreview);
+    }
+    
 
     private LambdaFactoryConfiguration setDefaultHelperClassSourceProvider(HelperClassSourceProvider helperClassSourceProvider) {
         this.helperClassSourceProvider = helperClassSourceProvider;
@@ -181,38 +192,37 @@ public class LambdaFactoryConfiguration {
         this.javaCompiler = javaCompiler;
         return this;
     }
+    
+    private LambdaFactoryConfiguration setEnablePreview(boolean enablePreview) {
+    	this.enablePreview = enablePreview;
+    	return this;
+    }
 
     private static <T> List<T> listWithNewElements(List<T> oldList, T... newElements) {
         return Collections.unmodifiableList(concat(oldList.stream(), Arrays.stream(newElements)).collect(toList()));
     }
 
     @Override
-    public boolean equals(Object o) {
-        if (this == o) return true;
-        if (o == null || getClass() != o.getClass()) return false;
-
-        LambdaFactoryConfiguration that = (LambdaFactoryConfiguration) o;
-
-        if (!helperClassSourceProvider.equals(that.helperClassSourceProvider)) return false;
-        if (!classFactory.equals(that.classFactory)) return false;
-        if (!staticImports.equals(that.staticImports)) return false;
-        if (!imports.equals(that.imports)) return false;
-        if (!compilationClassPath.equals(that.compilationClassPath)) return false;
-        if (!parentClassLoader.equals(that.parentClassLoader)) return false;
-        return javaCompiler.equals(that.javaCompiler);
-
-    }
+	public boolean equals(Object obj) {
+		if (this == obj) {
+			return true;
+		}
+		if (!(obj instanceof LambdaFactoryConfiguration)) {
+			return false;
+		}
+		LambdaFactoryConfiguration other = (LambdaFactoryConfiguration) obj;
+		return Objects.equals(classFactory, other.classFactory)
+				&& Objects.equals(compilationClassPath, other.compilationClassPath)
+				&& enablePreview == other.enablePreview
+				&& Objects.equals(helperClassSourceProvider, other.helperClassSourceProvider)
+				&& Objects.equals(imports, other.imports) && Objects.equals(javaCompiler, other.javaCompiler)
+				&& Objects.equals(parentClassLoader, other.parentClassLoader)
+				&& Objects.equals(staticImports, other.staticImports);
+	}
 
     @Override
-    public int hashCode() {
-        int result = helperClassSourceProvider.hashCode();
-        result = 31 * result + classFactory.hashCode();
-        result = 31 * result + staticImports.hashCode();
-        result = 31 * result + imports.hashCode();
-        result = 31 * result + compilationClassPath.hashCode();
-        result = 31 * result + parentClassLoader.hashCode();
-        result = 31 * result + javaCompiler.hashCode();
-        return result;
-    }
-
+	public int hashCode() {
+		return Objects.hash(classFactory, compilationClassPath, enablePreview, helperClassSourceProvider, imports,
+				javaCompiler, parentClassLoader, staticImports);
+	}
 }
