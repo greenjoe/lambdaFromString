@@ -46,6 +46,10 @@
         </developer>
     </developers>
 
+	<properties>
+		<java.release>1.8</java.release>
+	</properties>
+
     <dependencies>
         <dependency>
             <groupId>org.eclipse.jdt.core.compiler</groupId>
