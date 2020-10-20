@@ -1,5 +1,7 @@
-<project xmlns="http://maven.apache.org/POM/4.0.0" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/xsd/maven-4.0.0.xsd">
-    <modelVersion>4.0.0</modelVersion>
+<project xmlns="http://maven.apache.org/POM/4.0.0"
+	xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+	xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/xsd/maven-4.0.0.xsd">
+	<modelVersion>4.0.0</modelVersion>
 
 	<parent>
 		<groupId>de.labathome</groupId>
@@ -7,14 +9,14 @@
 		<version>1.0.0</version>
 	</parent>
 
-    <groupId>de.labathome</groupId>
-    <artifactId>lambda-from-string</artifactId>
-    <version>1.7-SNAPSHOT</version>
-    <packaging>jar</packaging>
+	<groupId>de.labathome</groupId>
+	<artifactId>lambda-from-string</artifactId>
+	<version>1.7.0</version>
+	<packaging>jar</packaging>
 
-    <name>lambdaFromString</name>
-    <description>Java8 library that can create a lambda from its code stored in a string</description>
-    
+	<name>lambdaFromString</name>
+	<description>Java8 library that can create a lambda from its code stored in a string</description>
+
 	<url>${jonathanschilling.git.url}${project.name}</url>
 	<scm>
 		<connection>${jonathanschilling.git.root}${project.name}.git</connection>
@@ -25,38 +27,37 @@
 		<url>${jonathanschilling.git.url}${project.name}/issues</url>
 		<system>GitLab Issues</system>
 	</issueManagement>
-    
-    <licenses>
-        <license>
-            <name>MIT License</name>
-            <url>https://raw.githubusercontent.com/greenjoe/lambdaFromString/master/LICENSE</url>
-        </license>
-    </licenses>
 
-    <developers>
-        <developer>
-            <name>Paweł Chorążyk</name>
-            <email>joegreen+github@joegreen.pl</email>
-            <url>http://joegreen.pl</url>
-        </developer>
-        <developer>
-        	<name>Jonathan Schilling</name>
-        	<email>jonathan.schilling@mail.de</email>
-        	<url>http://www.labathome.de/</url>
-        </developer>
-    </developers>
+	<licenses>
+		<license>
+			<name>MIT License</name>
+			<url>https://raw.githubusercontent.com/greenjoe/lambdaFromString/master/LICENSE</url>
+		</license>
+	</licenses>
 
-    <dependencies>
-        <dependency>
-            <groupId>org.eclipse.jdt.core.compiler</groupId>
-            <artifactId>ecj</artifactId>
-            <version>4.4.2</version>
-        </dependency>
-        <dependency>
-            <groupId>org.apache.commons</groupId>
-            <artifactId>commons-lang3</artifactId>
-            <version>3.6</version>
-        </dependency>
-    </dependencies>
-    
+	<developers>
+		<developer>
+			<name>Paweł Chorążyk</name>
+			<email>joegreen+github@joegreen.pl</email>
+			<url>http://joegreen.pl</url>
+		</developer>
+		<developer>
+			<name>Jonathan Schilling</name>
+			<email>jonathan.schilling@mail.de</email>
+			<url>http://www.labathome.de/</url>
+		</developer>
+	</developers>
+
+	<dependencies>
+		<dependency>
+			<groupId>org.eclipse.jdt.core.compiler</groupId>
+			<artifactId>ecj</artifactId>
+			<version>4.4.2</version>
+		</dependency>
+		<dependency>
+			<groupId>org.apache.commons</groupId>
+			<artifactId>commons-lang3</artifactId>
+			<version>3.6</version>
+		</dependency>
+	</dependencies>
 </project>
