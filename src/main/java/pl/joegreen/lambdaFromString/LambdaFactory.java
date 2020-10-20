@@ -33,7 +33,8 @@ public class LambdaFactory {
                 configuration.getImports(),
                 configuration.getStaticImports(),
                 configuration.getCompilationClassPath(),
-                configuration.getParentClassLoader());
+                configuration.getParentClassLoader(),
+                configuration.getEnablePreview());
     }
 
     private final HelperClassSourceProvider helperProvider;
@@ -43,10 +44,11 @@ public class LambdaFactory {
     private final List<String> staticImports;
     private final String compilationClassPath;
     private final ClassLoader parentClassLoader;
+    private final boolean enablePreview;
 
     private LambdaFactory(HelperClassSourceProvider helperProvider, ClassFactory classFactory,
                           JavaCompiler javaCompiler, List<String> imports, List<String> staticImports,
-                          String compilationClassPath, ClassLoader parentClassLoader) {
+                          String compilationClassPath, ClassLoader parentClassLoader, boolean enablePreview) {
         this.helperProvider = helperProvider;
         this.classFactory = classFactory;
         this.javaCompiler = javaCompiler;
@@ -54,6 +56,7 @@ public class LambdaFactory {
         this.staticImports = staticImports;
         this.compilationClassPath = compilationClassPath;
         this.parentClassLoader = parentClassLoader;
+        this.enablePreview = enablePreview;
     }
 
     /**
@@ -69,7 +72,7 @@ public class LambdaFactory {
     public <T> T createLambda(String code, TypeReference<T> typeReference) throws LambdaCreationException {
         String helperClassSource = helperProvider.getHelperClassSource(typeReference.toString(), code, imports, staticImports);
         try {
-            Class<?> helperClass = classFactory.createClass(helperProvider.getHelperClassName(), helperClassSource, javaCompiler, createOptionsForCompilationClasspath(compilationClassPath), parentClassLoader);
+            Class<?> helperClass = classFactory.createClass(helperProvider.getHelperClassName(), helperClassSource, javaCompiler, createOptionsForCompilationClasspath(compilationClassPath, enablePreview), parentClassLoader);
             Method lambdaReturningMethod = helperClass.getMethod(helperProvider.getLambdaReturningMethodName());
             @SuppressWarnings("unchecked")
             // the whole point of the class template and runtime compilation is to make this cast work well :-)
@@ -84,8 +87,12 @@ public class LambdaFactory {
         }
     }
 
-    private List<String> createOptionsForCompilationClasspath(String compilationClassPath) {
-        return Arrays.asList("-classpath", compilationClassPath);
+    private List<String> createOptionsForCompilationClasspath(String compilationClassPath, boolean enablePreview) {
+    	if (enablePreview) {
+    		return Arrays.asList("-classpath", compilationClassPath, "--enable-preview");
+    	}
+
+    	return Arrays.asList("-classpath", compilationClassPath);
     }
 
     /**

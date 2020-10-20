@@ -8,27 +8,34 @@ import java.util.Optional;
 
 class JavaCompilerProvider {
 
-    static Optional<JavaCompiler> findDefaultJavaCompiler() {
-        Optional<JavaCompiler> eclipseJavaCompiler = getEclipseJavaCompiler();
-        Optional<JavaCompiler> jdkJavaCompiler = getJdkJavaCompiler();
-        if(eclipseJavaCompiler.isPresent()){
-            return eclipseJavaCompiler;
-        }else if(jdkJavaCompiler.isPresent()){
-            return jdkJavaCompiler;
-        }else{
-            return Optional.empty();
-        }
-    }
+	/**
+	 * Obtain (if available) the default JDK compiler or, if running on JRE, the
+	 * Eclipse compiler. Prioritize the JDK compiler since it works for higher Java
+	 * versions as well.
+	 * 
+	 * @return a Java compiler
+	 */
+	static Optional<JavaCompiler> findDefaultJavaCompiler() {
+		Optional<JavaCompiler> jdkJavaCompiler = getJdkJavaCompiler();
+		Optional<JavaCompiler> eclipseJavaCompiler = getEclipseJavaCompiler();
+		if (jdkJavaCompiler.isPresent()) {
+			return jdkJavaCompiler;
+		} else if (eclipseJavaCompiler.isPresent()) {
+			return eclipseJavaCompiler;
+		} else {
+			return Optional.empty();
+		}
+	}
 
-    static Optional<JavaCompiler> getEclipseJavaCompiler() {
-        try {
-            return Optional.of(new EclipseCompiler());
-        } catch (NoClassDefFoundError err) {
-            return Optional.empty();
-        }
-    }
+	static Optional<JavaCompiler> getEclipseJavaCompiler() {
+		try {
+			return Optional.of(new EclipseCompiler());
+		} catch (NoClassDefFoundError err) {
+			return Optional.empty();
+		}
+	}
 
-    static Optional<JavaCompiler> getJdkJavaCompiler() {
-        return Optional.ofNullable(ToolProvider.getSystemJavaCompiler());
-    }
+	static Optional<JavaCompiler> getJdkJavaCompiler() {
+		return Optional.ofNullable(ToolProvider.getSystemJavaCompiler());
+	}
 }
