@@ -2,6 +2,7 @@ package pl.joegreen.lambdaFromString;
 
 import pl.joegreen.lambdaFromString.classFactory.ClassCompilationException;
 import pl.joegreen.lambdaFromString.classFactory.ClassFactory;
+import pl.joegreen.lambdaFromString.classFactory.DefaultClassFactory;
 
 import javax.tools.JavaCompiler;
 import java.lang.reflect.Method;
@@ -88,7 +89,7 @@ public class LambdaFactory {
     }
 
     private List<String> createOptionsForCompilationClasspath(String compilationClassPath, boolean enablePreview) {
-    	if (enablePreview) {
+    	if (enablePreview && DefaultClassFactory.getJavaVersion() >= 11) {
     		return Arrays.asList("-classpath", compilationClassPath, "--enable-preview");
     	}
 
