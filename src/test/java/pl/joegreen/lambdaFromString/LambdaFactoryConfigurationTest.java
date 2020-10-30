@@ -2,20 +2,16 @@ package pl.joegreen.lambdaFromString;
 
 import org.eclipse.jdt.internal.compiler.tool.EclipseCompiler;
 import org.junit.jupiter.api.Test;
-
 import pl.joegreen.lambdaFromString.classFactory.ClassFactory;
 import pl.joegreen.lambdaFromString.classFactory.DefaultClassFactory;
 
 import javax.tools.JavaCompiler;
-
-import static org.junit.jupiter.api.Assertions.assertEquals;
-import static org.junit.jupiter.api.Assertions.assertNotEquals;
-import static org.junit.jupiter.api.Assertions.assertSame;
-
 import java.net.URL;
 import java.net.URLClassLoader;
 import java.util.Arrays;
 import java.util.List;
+
+import static org.junit.jupiter.api.Assertions.*;
 
 public class LambdaFactoryConfigurationTest {
 
@@ -24,8 +20,10 @@ public class LambdaFactoryConfigurationTest {
 		List<String> imports = Arrays.asList("i1", "i2", "i3");
 		List<String> staticImports = Arrays.asList("si1", "si2", "si3");
 
-		LambdaFactoryConfiguration conf = LambdaFactoryConfiguration.get().withStaticImports(staticImports.get(0))
-				.withImports(imports.get(0), imports.get(1)).withImports(imports.get(2))
+		LambdaFactoryConfiguration conf = LambdaFactoryConfiguration.get()
+				.withStaticImports(staticImports.get(0))
+				.withImports(imports.get(0), imports.get(1))
+				.withImports(imports.get(2))
 				.withStaticImports(staticImports.get(1), staticImports.get(2));
 		assertEquals(imports, conf.getImports());
 		assertEquals(staticImports, conf.getStaticImports());
@@ -51,9 +49,14 @@ public class LambdaFactoryConfigurationTest {
 		JavaCompiler javaCompiler = new EclipseCompiler();
 
 		LambdaFactoryConfiguration changedConfiguration = LambdaFactoryConfiguration.get()
-				.withHelperClassSourceProvider(helper).withClassFactory(classFactory).withStaticImports(staticImports)
-				.withImports(imports).withCompilationClassPath(compilationClassPath)
-				.withParentClassLoader(parentClassLoader).withJavaCompiler(javaCompiler);
+				.withHelperClassSourceProvider(helper)
+				.withClassFactory(classFactory)
+				.withStaticImports(staticImports)
+				.withImports(imports)
+				.withCompilationClassPath(compilationClassPath)
+				.withParentClassLoader(parentClassLoader)
+				.withJavaCompiler(javaCompiler)
+				.withEnablePreview(true);
 
 		assertSame(helper, changedConfiguration.getDefaultHelperClassSourceProvider());
 		assertSame(classFactory, changedConfiguration.getClassFactory());
@@ -62,6 +65,7 @@ public class LambdaFactoryConfigurationTest {
 		assertEquals(compilationClassPath, changedConfiguration.getCompilationClassPath());
 		assertSame(parentClassLoader, changedConfiguration.getParentClassLoader());
 		assertSame(javaCompiler, changedConfiguration.getJavaCompiler());
+		assertTrue(changedConfiguration.getEnablePreview());
 
 	}
 

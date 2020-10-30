@@ -14,6 +14,7 @@ public class LambdaFactory {
 
     /**
      * Returns a LambdaFactory instance with default configuration.
+     *
      * @throws JavaCompilerNotFoundException if the library cannot find any java compiler
      */
     public static LambdaFactory get() {
@@ -22,8 +23,8 @@ public class LambdaFactory {
 
     /**
      * Returns a LambdaFactory instance with the given configuration.
-     * @throws JavaCompilerNotFoundException if the library cannot find any java compiler and it's not provided
-     * in the configuration
+     *
+     * @throws JavaCompilerNotFoundException if the library cannot find any java compiler and it's not provided in the configuration
      */
     public static LambdaFactory get(LambdaFactoryConfiguration configuration) {
         JavaCompiler compiler = Optional.ofNullable(configuration.getJavaCompiler()).orElseThrow(JavaCompilerNotFoundException::new);
@@ -77,7 +78,7 @@ public class LambdaFactory {
             Method lambdaReturningMethod = helperClass.getMethod(helperProvider.getLambdaReturningMethodName());
             @SuppressWarnings("unchecked")
             // the whole point of the class template and runtime compilation is to make this cast work well :-)
-                    T lambda = (T) lambdaReturningMethod.invoke(null);
+            T lambda = (T) lambdaReturningMethod.invoke(null);
             return lambda;
         } catch (ReflectiveOperationException | RuntimeException | NoClassDefFoundError e) {
             // NoClassDefFoundError can be thrown if provided parent class loader cannot load classes used by the lambda
@@ -89,11 +90,11 @@ public class LambdaFactory {
     }
 
     private List<String> createOptionsForCompilationClasspath(String compilationClassPath, boolean enablePreview) {
-    	if (enablePreview && DefaultClassFactory.getJavaVersion() >= 11) {
-    		return Arrays.asList("-classpath", compilationClassPath, "--enable-preview");
-    	}
+        if (enablePreview && DefaultClassFactory.getJavaVersion() >= 11) {
+            return Arrays.asList("-classpath", compilationClassPath, "--enable-preview");
+        }
 
-    	return Arrays.asList("-classpath", compilationClassPath);
+        return Arrays.asList("-classpath", compilationClassPath);
     }
 
     /**
