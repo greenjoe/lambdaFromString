@@ -76,9 +76,9 @@ public class LambdaFactoryConfiguration {
     public JavaCompiler getJavaCompiler() {
         return javaCompiler;
     }
-    
+
     public boolean getEnablePreview() {
-    	return enablePreview;
+        return enablePreview;
     }
 
     /**
@@ -154,9 +154,9 @@ public class LambdaFactoryConfiguration {
     }
 
     public LambdaFactoryConfiguration withEnablePreview(boolean enablePreview) {
-    	return copy().setEnablePreview(enablePreview);
+        return copy().setEnablePreview(enablePreview);
     }
-    
+
 
     private LambdaFactoryConfiguration setDefaultHelperClassSourceProvider(HelperClassSourceProvider helperClassSourceProvider) {
         this.helperClassSourceProvider = helperClassSourceProvider;
@@ -192,10 +192,10 @@ public class LambdaFactoryConfiguration {
         this.javaCompiler = javaCompiler;
         return this;
     }
-    
+
     private LambdaFactoryConfiguration setEnablePreview(boolean enablePreview) {
-    	this.enablePreview = enablePreview;
-    	return this;
+        this.enablePreview = enablePreview;
+        return this;
     }
 
     private static <T> List<T> listWithNewElements(List<T> oldList, T... newElements) {
@@ -203,26 +203,26 @@ public class LambdaFactoryConfiguration {
     }
 
     @Override
-	public boolean equals(Object obj) {
-		if (this == obj) {
-			return true;
-		}
-		if (!(obj instanceof LambdaFactoryConfiguration)) {
-			return false;
-		}
-		LambdaFactoryConfiguration other = (LambdaFactoryConfiguration) obj;
-		return Objects.equals(classFactory, other.classFactory)
-				&& Objects.equals(compilationClassPath, other.compilationClassPath)
-				&& enablePreview == other.enablePreview
-				&& Objects.equals(helperClassSourceProvider, other.helperClassSourceProvider)
-				&& Objects.equals(imports, other.imports) && Objects.equals(javaCompiler, other.javaCompiler)
-				&& Objects.equals(parentClassLoader, other.parentClassLoader)
-				&& Objects.equals(staticImports, other.staticImports);
-	}
+    public boolean equals(Object obj) {
+        if (this == obj) {
+            return true;
+        }
+        if (!(obj instanceof LambdaFactoryConfiguration)) {
+            return false;
+        }
+        LambdaFactoryConfiguration other = (LambdaFactoryConfiguration) obj;
+        return Objects.equals(classFactory, other.classFactory)
+                && Objects.equals(compilationClassPath, other.compilationClassPath)
+                && enablePreview == other.enablePreview
+                && Objects.equals(helperClassSourceProvider, other.helperClassSourceProvider)
+                && Objects.equals(imports, other.imports) && Objects.equals(javaCompiler, other.javaCompiler)
+                && Objects.equals(parentClassLoader, other.parentClassLoader)
+                && Objects.equals(staticImports, other.staticImports);
+    }
 
     @Override
-	public int hashCode() {
-		return Objects.hash(classFactory, compilationClassPath, enablePreview, helperClassSourceProvider, imports,
-				javaCompiler, parentClassLoader, staticImports);
-	}
+    public int hashCode() {
+        return Objects.hash(classFactory, compilationClassPath, enablePreview, helperClassSourceProvider, imports,
+                javaCompiler, parentClassLoader, staticImports);
+    }
 }
