@@ -1,8 +1,8 @@
-# Java 8 &ndash; Lambda from String
+# Java &ndash; Lambda from String
 
 Sometimes you may want to load a function from your application configuration file instead of a single value. 
 In that case you should probably use Nashorn JavaScript engine that comes with Java 8, as advised by [this stackoverflow answer](http://stackoverflow.com/a/22291144). 
-However if, for some reason, you would like to stick to Java then this library might be a good choice for you. 
+However, if for some reason you would like to stick to Java then this library might be a good choice for you. 
 
 ## Reasons to use it
 LambdaFromString is a library that can generate a Java 8 lambda object at runtime from its code stored in a String. 
@@ -56,28 +56,30 @@ LambdaFactory instances are threadsafe.
 
 
 ## Requirements and downloads 
-The library works only with __Java 8__.
+The library works with __Java 8+__.
 You can get it from Maven Central:
 ```xml
 <dependency>
 	<groupId>pl.joegreen</groupId>
 	<artifactId>lambda-from-string</artifactId>
-	<version>1.6</version>
+	<version>1.7</version>
 </dependency>
 ```
 It has two external Maven dependencies:
-* [Eclipse JDT Core Batch Compiler](http://mvnrepository.com/artifact/org.eclipse.jdt.core.compiler/ecj). That dependency was added because Java compiler is a part of JDK (located in tools.jar) and it's not available in pure JRE. When client applications were running on JRE then no Java compiler was available at runtime and the LambdaFromString library failed to compile lambda code. Eclipse ECJ makes it possible to use LambdaFromString even in cases when only JRE is available at runtime.
 * [Apache Commons Lang](https://commons.apache.org/proper/commons-lang/). That dependency was added because `java.lang.reflect.Type.toString()` doesn't describe type parameters in a way that can be directly used for compilation and `TypeUtils.toString(Type)` has to be used instead.
+* [Eclipse JDT Core Batch Compiler](http://mvnrepository.com/artifact/org.eclipse.jdt.core.compiler/ecj). Marked as 'optional' which means it should not be transitively downloaded by Maven. ECJ dependency was added because Java compiler is a part of JDK (located in tools.jar) and it's not available in pure JRE. When client applications were running on JRE then no Java compiler was available at runtime and the LambdaFromString library failed to compile lambda code. Eclipse ECJ makes it possible to use LambdaFromString even in cases when only JRE is available at runtime. Unfortunately ECJ works with this library only for Java 8 and not for higher versions.
 
-### Running without Eclipse ECJ 
-If you are sure that your application will be running on JDK and you want to use default compiler instead of Eclipse ECJ you can exclude that dependency in Maven by adding exclusions inside the `<dependency>` tag:  
+### Running with JDK 
+If you run your application on the JDK (instead of the JRE) the library should work out of the box.
+
+### Running with JRE and Eclipse ECJ 
+If you run your application on the JRE (without JDK) you can use the Eclipse ECJ compiler instead. The library will automatically try to use the Eclipse compiler if it doesn't find the JDK compiler. The ECJ dependency is marked as optional though, so you have to add it explicitly to your project:  
 ```xml
-<exclusions>
-	<exclusion>
-		<groupId>org.eclipse.jdt.core.compiler</groupId>
-		<artifactId>ecj</artifactId>
-	</exclusion>
-</exclusions>
+<dependency>
+	<groupId>org.eclipse.jdt.core.compiler</groupId>
+	<artifactId>ecj</artifactId>
+	<version>4.6.1</version>
+</dependency>
 ```
 
 ## How it works? 

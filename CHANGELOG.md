@@ -1,3 +1,12 @@
+# 1.7
+* @jonathanschilling and @uhoefel made this release possible, thanks! 
+* JDK compiler takes precedence over ECJ.
+* Support for higher Java versions (tested on Java 15) with JDK compiler. ECJ + JRE still works only for Java 8.
+* ECJ dependency marked as optional in Maven.
+* Additional compiler arguments can be added in LambdaFactoryConfiguration. 
+* DefaultClassFactory interface changes. 
+* Tests migrated to Junit 5.
+ 
 # 1.6
 * Apache Commons Lang3 version changed to 3.6. Removed array types description generation workaround as it not necessary anymore.
 
