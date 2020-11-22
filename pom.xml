@@ -61,7 +61,8 @@
         <dependency>
             <groupId>org.eclipse.jdt.core.compiler</groupId>
             <artifactId>ecj</artifactId>
-            <version>4.4.2</version>
+            <version>4.6.1</version>
+            <optional>true</optional>
         </dependency>
 
         <dependency>
@@ -139,7 +140,7 @@
                     <plugin>
                         <groupId>org.apache.maven.plugins</groupId>
                         <artifactId>maven-gpg-plugin</artifactId>
-                        <version>1.5</version>
+                        <version>1.6</version>
                         <executions>
                             <execution>
                                 <id>sign-artifacts</id>
