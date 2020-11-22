@@ -22,7 +22,7 @@ public class LambdaFactoryConfiguration {
     private String compilationClassPath;
     private ClassLoader parentClassLoader;
     private JavaCompiler javaCompiler;
-    private boolean enablePreview;
+    private List<String> compilerArguments;
     private int javaVersion;
 
     public static LambdaFactoryConfiguration get() {
@@ -37,7 +37,7 @@ public class LambdaFactoryConfiguration {
         compilationClassPath = ClassPathExtractor.getJavaPropertyClassPath();
         parentClassLoader = this.getClass().getClassLoader();
         javaCompiler = DEFAULT_COMPILER.orElse(null);
-        enablePreview = false;
+        compilerArguments = Collections.unmodifiableList(new ArrayList<>());
         javaVersion = getJavaVersionSafe();
     }
 
@@ -58,7 +58,7 @@ public class LambdaFactoryConfiguration {
                 .setCompilationClassPath(compilationClassPath)
                 .setParentClassLoader(parentClassLoader)
                 .setJavaCompiler(javaCompiler)
-                .setEnablePreview(enablePreview)
+                .setCompilerArguments(compilerArguments)
                 .setJavaVersion(javaVersion);
     }
 
@@ -91,8 +91,8 @@ public class LambdaFactoryConfiguration {
         return javaCompiler;
     }
 
-    public boolean getEnablePreview() {
-        return enablePreview;
+    public List<String> getCompilerArguments() {
+        return compilerArguments;
     }
 
     public int getJavaVersion() {
@@ -171,8 +171,12 @@ public class LambdaFactoryConfiguration {
         return copy().setJavaCompiler(javaCompiler);
     }
 
-    public LambdaFactoryConfiguration withEnablePreview(boolean enablePreview) {
-        return copy().setEnablePreview(enablePreview);
+    /**
+     * Makes it possible to provide additional compiler arguments.
+     * By default '-source', '-target' and '-classpath' arguments are added.
+     */
+    public LambdaFactoryConfiguration withCompilerArguments(String... newCompilerArguments) {
+        return copy().setCompilerArguments(listWithNewElements(compilerArguments, newCompilerArguments));
     }
 
     /**
@@ -218,8 +222,8 @@ public class LambdaFactoryConfiguration {
         return this;
     }
 
-    private LambdaFactoryConfiguration setEnablePreview(boolean enablePreview) {
-        this.enablePreview = enablePreview;
+    private LambdaFactoryConfiguration setCompilerArguments(List<String> compilerArguments) {
+        this.compilerArguments = compilerArguments;
         return this;
     }
 
@@ -237,20 +241,19 @@ public class LambdaFactoryConfiguration {
         if (this == o) return true;
         if (o == null || getClass() != o.getClass()) return false;
         LambdaFactoryConfiguration that = (LambdaFactoryConfiguration) o;
-        return enablePreview == that.enablePreview &&
-                javaVersion == that.javaVersion &&
+        return javaVersion == that.javaVersion &&
                 Objects.equals(helperClassSourceProvider, that.helperClassSourceProvider) &&
                 Objects.equals(classFactory, that.classFactory) &&
                 Objects.equals(staticImports, that.staticImports) &&
                 Objects.equals(imports, that.imports) &&
                 Objects.equals(compilationClassPath, that.compilationClassPath) &&
                 Objects.equals(parentClassLoader, that.parentClassLoader) &&
-                Objects.equals(javaCompiler, that.javaCompiler);
+                Objects.equals(javaCompiler, that.javaCompiler) &&
+                Objects.equals(compilerArguments, that.compilerArguments);
     }
 
     @Override
     public int hashCode() {
-        return Objects.hash(helperClassSourceProvider, classFactory, staticImports, imports, compilationClassPath,
-                parentClassLoader, javaCompiler, enablePreview, javaVersion);
+        return Objects.hash(helperClassSourceProvider, classFactory, staticImports, imports, compilationClassPath, parentClassLoader, javaCompiler, compilerArguments, javaVersion);
     }
 }

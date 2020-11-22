@@ -2,11 +2,9 @@ package pl.joegreen.lambdaFromString;
 
 import pl.joegreen.lambdaFromString.classFactory.ClassCompilationException;
 import pl.joegreen.lambdaFromString.classFactory.ClassFactory;
-import pl.joegreen.lambdaFromString.classFactory.JavaVersionProvider;
 
 import javax.tools.JavaCompiler;
 import java.lang.reflect.Method;
-import java.util.Collections;
 import java.util.List;
 import java.util.Optional;
 
@@ -36,7 +34,7 @@ public class LambdaFactory {
                 configuration.getStaticImports(),
                 configuration.getCompilationClassPath(),
                 configuration.getParentClassLoader(),
-                configuration.getEnablePreview(),
+                configuration.getCompilerArguments(),
                 configuration.getJavaVersion());
     }
 
@@ -48,11 +46,11 @@ public class LambdaFactory {
     private final String compilationClassPath;
     private final ClassLoader parentClassLoader;
     private final int javaVersion;
-    private final boolean enablePreview;
+    private final List<String> compilerArguments;
 
     private LambdaFactory(HelperClassSourceProvider helperProvider, ClassFactory classFactory,
                           JavaCompiler javaCompiler, List<String> imports, List<String> staticImports,
-                          String compilationClassPath, ClassLoader parentClassLoader, boolean enablePreview,
+                          String compilationClassPath, ClassLoader parentClassLoader, List<String> compilerArguments,
                           int javaVersion) {
         this.helperProvider = helperProvider;
         this.classFactory = classFactory;
@@ -61,7 +59,7 @@ public class LambdaFactory {
         this.staticImports = staticImports;
         this.compilationClassPath = compilationClassPath;
         this.parentClassLoader = parentClassLoader;
-        this.enablePreview = enablePreview;
+        this.compilerArguments = compilerArguments;
         this.javaVersion = javaVersion;
     }
 
@@ -78,9 +76,8 @@ public class LambdaFactory {
     public <T> T createLambda(String code, TypeReference<T> typeReference) throws LambdaCreationException {
         String helperClassSource = helperProvider.getHelperClassSource(typeReference.toString(), code, imports, staticImports);
         try {
-            Class<?> helperClass = classFactory.createClass(helperProvider.getHelperClassName(),
-                    helperClassSource, javaCompiler,javaVersion, compilationClassPath,
-                    createAdditionalCompilerOptions(enablePreview), parentClassLoader);
+            Class<?> helperClass = classFactory.createClass(helperProvider.getHelperClassName(), helperClassSource,
+                    javaCompiler,javaVersion, compilationClassPath, compilerArguments, parentClassLoader);
             Method lambdaReturningMethod = helperClass.getMethod(helperProvider.getLambdaReturningMethodName());
             @SuppressWarnings("unchecked")
             // the whole point of the class template and runtime compilation is to make this cast work well :-)
@@ -93,14 +90,6 @@ public class LambdaFactory {
             // that catch differs from the catch above as the exact exception type is known and additional details can be extracted
             throw new LambdaCreationException(classCompilationException);
         }
-    }
-
-    private List<String> createAdditionalCompilerOptions(boolean enablePreview) {
-        if (enablePreview && JavaVersionProvider.getJavaVersion() >= 11) {
-            return Collections.singletonList("--enable-preview");
-        }
-
-        return Collections.emptyList();
     }
 
     /**

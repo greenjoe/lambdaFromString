@@ -5,6 +5,7 @@ import org.junit.jupiter.params.ParameterizedTest;
 import org.junit.jupiter.params.provider.Arguments;
 import org.junit.jupiter.params.provider.MethodSource;
 import pl.joegreen.lambdaFromString.classFactory.JavaVersionProvider;
+import pl.joegreen.lambdaFromString.dummy.ClassWithDeprecatedMethod;
 import pl.joegreen.lambdaFromString.dummy.CustomInterface;
 import pl.joegreen.lambdaFromString.dummy.CustomInterfaceUsingInnerClass;
 
@@ -33,11 +34,15 @@ class LambdaFactoryTest {
         int javaVersion = JavaVersionProvider.getJavaVersion();
 
         if (javaVersion <= 8) {
-            return Stream.of(Arguments.of(JavaCompilerProvider.getJdkJavaCompiler().get()),
+            return Stream.of(Arguments.of(getJdkCompiler()),
                     Arguments.of(new EclipseCompiler()));
         }
 
-        return Stream.of(Arguments.of(JavaCompilerProvider.getJdkJavaCompiler().get()));
+        return Stream.of(Arguments.of(getJdkCompiler()));
+    }
+
+    private static JavaCompiler getJdkCompiler() {
+        return JavaCompilerProvider.getJdkJavaCompiler().get();
     }
 
     @ParameterizedTest
@@ -134,7 +139,7 @@ class LambdaFactoryTest {
     void lambdaCreatingComplicatedGenericType(JavaCompiler jc) {
         String code = "() -> ( x -> new ArrayList<>())";
         LambdaFactory factory = LambdaFactory.get(LambdaFactoryConfiguration.get()
-                .withImports(SimpleEntry.class, ArrayList.class).withJavaCompiler(jc).withEnablePreview(true));
+                .withImports(SimpleEntry.class, ArrayList.class).withJavaCompiler(jc));
         Supplier<Function<CustomInterfaceUsingInnerClass.InnerClass[], List<SimpleEntry<?, ?>>>> lambda =
                 factory.createLambdaUnchecked(code, new TypeReference<Supplier<Function<CustomInterfaceUsingInnerClass.InnerClass[], List<SimpleEntry<?, ?>>>>>() {});
         Function<CustomInterfaceUsingInnerClass.InnerClass[], List<SimpleEntry<?, ?>>> function = lambda.get();
@@ -163,7 +168,7 @@ class LambdaFactoryTest {
     @MethodSource("jdkAndEclipse")
     void lambdaImplementingNonStandardInterface(JavaCompiler jc) {
         LambdaFactory factory = LambdaFactory.get(LambdaFactoryConfiguration.get().withImports(CustomInterface.class)
-                .withJavaCompiler(jc).withEnablePreview(true));
+                .withJavaCompiler(jc));
         String code = " x -> 10";
         CustomInterface lambda = factory.createLambdaUnchecked(code, new TypeReference<CustomInterface>() {});
         assertEquals(lambda.customFunction("abc"), 10);
@@ -212,7 +217,7 @@ class LambdaFactoryTest {
     void lambdaImplementingNonStandardInterfaceUsingInnerClass(JavaCompiler jc) {
         LambdaFactory factory = LambdaFactory.get(LambdaFactoryConfiguration.get()
                 .withImports(CustomInterfaceUsingInnerClass.class, CustomInterfaceUsingInnerClass.InnerClass.class)
-                .withJavaCompiler(jc).withEnablePreview(true));
+                .withJavaCompiler(jc));
         String code = " () -> new InnerClass()";
         CustomInterfaceUsingInnerClass lambda = factory.createLambdaUnchecked(code, new TypeReference<CustomInterfaceUsingInnerClass>() {});
         assertEquals(CustomInterfaceUsingInnerClass.InnerClass.class, lambda.createInnerClass().getClass());
@@ -256,5 +261,23 @@ class LambdaFactoryTest {
         LambdaCreationRuntimeException ex = assertThrows(LambdaCreationRuntimeException.class,
                 () -> factory.createLambdaUnchecked("i -> i+1", new TypeReference<Function<Integer, Integer>>() {}));
         assertTrue(ex.getNestedCheckedException().getMessage().contains("115"));
+    }
+
+    @ParameterizedTest
+    @MethodSource("jdkAndEclipse")
+    void shouldPassAdditionalArgumentToCompiler(JavaCompiler jc) {
+        String[] deprecationWarningAsErrorArgs;
+        if (jc instanceof EclipseCompiler) {
+            deprecationWarningAsErrorArgs = new String[]{"-err:deprecation"};
+        } else {
+            deprecationWarningAsErrorArgs = new String[]{"-Xlint:deprecation", "-Werror"};
+        }
+        LambdaFactory factory = LambdaFactory.get(LambdaFactoryConfiguration.get()
+                .withJavaCompiler(jc)
+                .withImports(ClassWithDeprecatedMethod.class)
+                .withCompilerArguments(deprecationWarningAsErrorArgs));
+        LambdaCreationRuntimeException ex = assertThrows(LambdaCreationRuntimeException.class, () -> factory.createLambdaUnchecked(
+                "i -> ClassWithDeprecatedMethod.deprecatedMethod()", new TypeReference<Function<Integer, Integer>>() {}));
+        assertTrue(ex.getNestedCheckedException().getMessage().contains("deprecated"));
     }
 }

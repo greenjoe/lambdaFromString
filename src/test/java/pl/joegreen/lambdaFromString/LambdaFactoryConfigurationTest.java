@@ -30,6 +30,16 @@ public class LambdaFactoryConfigurationTest {
 	}
 
 	@Test
+	public void addingCompilerArgumentsWithMultipleSteps() {
+		List<String> compilerArguments = Arrays.asList("-a1", "--a2", "---a3");
+
+		LambdaFactoryConfiguration conf = LambdaFactoryConfiguration.get()
+				.withCompilerArguments(compilerArguments.get(0))
+				.withCompilerArguments(compilerArguments.get(1), compilerArguments.get(2));
+		assertEquals(compilerArguments, conf.getCompilerArguments());
+	}
+
+	@Test
 	public void addingImportsCreatesNewConfiguration() {
 		LambdaFactoryConfiguration defaultConf = LambdaFactoryConfiguration.get();
 		LambdaFactoryConfiguration withImport = defaultConf.withImports("abc");
@@ -44,6 +54,7 @@ public class LambdaFactoryConfigurationTest {
 		ClassFactory classFactory = new DefaultClassFactory();
 		String[] staticImports = new String[] { "si1", "si2" };
 		String[] imports = new String[] { "i1", "i2" };
+		String[] compilerArguments = new String[] { "-a1", "--a2" };
 		String compilationClassPath = "compilationClassPath";
 		ClassLoader parentClassLoader = new URLClassLoader(new URL[] {});
 		JavaCompiler javaCompiler = new EclipseCompiler();
@@ -56,7 +67,7 @@ public class LambdaFactoryConfigurationTest {
 				.withCompilationClassPath(compilationClassPath)
 				.withParentClassLoader(parentClassLoader)
 				.withJavaCompiler(javaCompiler)
-				.withEnablePreview(true)
+				.withCompilerArguments(compilerArguments)
 				.withJavaVersion(17);
 
 		assertSame(helper, changedConfiguration.getDefaultHelperClassSourceProvider());
@@ -66,7 +77,7 @@ public class LambdaFactoryConfigurationTest {
 		assertEquals(compilationClassPath, changedConfiguration.getCompilationClassPath());
 		assertSame(parentClassLoader, changedConfiguration.getParentClassLoader());
 		assertSame(javaCompiler, changedConfiguration.getJavaCompiler());
-		assertTrue(changedConfiguration.getEnablePreview());
+		assertEquals(Arrays.asList(compilerArguments), changedConfiguration.getCompilerArguments());
 		assertEquals(17, changedConfiguration.getJavaVersion());
 	}
 
