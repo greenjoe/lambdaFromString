@@ -2,11 +2,11 @@ package pl.joegreen.lambdaFromString;
 
 import pl.joegreen.lambdaFromString.classFactory.ClassCompilationException;
 import pl.joegreen.lambdaFromString.classFactory.ClassFactory;
-import pl.joegreen.lambdaFromString.classFactory.DefaultClassFactory;
+import pl.joegreen.lambdaFromString.classFactory.JavaVersionProvider;
 
 import javax.tools.JavaCompiler;
 import java.lang.reflect.Method;
-import java.util.Arrays;
+import java.util.Collections;
 import java.util.List;
 import java.util.Optional;
 
@@ -36,7 +36,8 @@ public class LambdaFactory {
                 configuration.getStaticImports(),
                 configuration.getCompilationClassPath(),
                 configuration.getParentClassLoader(),
-                configuration.getEnablePreview());
+                configuration.getEnablePreview(),
+                configuration.getJavaVersion());
     }
 
     private final HelperClassSourceProvider helperProvider;
@@ -46,11 +47,13 @@ public class LambdaFactory {
     private final List<String> staticImports;
     private final String compilationClassPath;
     private final ClassLoader parentClassLoader;
+    private final int javaVersion;
     private final boolean enablePreview;
 
     private LambdaFactory(HelperClassSourceProvider helperProvider, ClassFactory classFactory,
                           JavaCompiler javaCompiler, List<String> imports, List<String> staticImports,
-                          String compilationClassPath, ClassLoader parentClassLoader, boolean enablePreview) {
+                          String compilationClassPath, ClassLoader parentClassLoader, boolean enablePreview,
+                          int javaVersion) {
         this.helperProvider = helperProvider;
         this.classFactory = classFactory;
         this.javaCompiler = javaCompiler;
@@ -59,6 +62,7 @@ public class LambdaFactory {
         this.compilationClassPath = compilationClassPath;
         this.parentClassLoader = parentClassLoader;
         this.enablePreview = enablePreview;
+        this.javaVersion = javaVersion;
     }
 
     /**
@@ -74,7 +78,9 @@ public class LambdaFactory {
     public <T> T createLambda(String code, TypeReference<T> typeReference) throws LambdaCreationException {
         String helperClassSource = helperProvider.getHelperClassSource(typeReference.toString(), code, imports, staticImports);
         try {
-            Class<?> helperClass = classFactory.createClass(helperProvider.getHelperClassName(), helperClassSource, javaCompiler, createOptionsForCompilationClasspath(compilationClassPath, enablePreview), parentClassLoader);
+            Class<?> helperClass = classFactory.createClass(helperProvider.getHelperClassName(),
+                    helperClassSource, javaCompiler,javaVersion, compilationClassPath,
+                    createAdditionalCompilerOptions(enablePreview), parentClassLoader);
             Method lambdaReturningMethod = helperClass.getMethod(helperProvider.getLambdaReturningMethodName());
             @SuppressWarnings("unchecked")
             // the whole point of the class template and runtime compilation is to make this cast work well :-)
@@ -89,12 +95,12 @@ public class LambdaFactory {
         }
     }
 
-    private List<String> createOptionsForCompilationClasspath(String compilationClassPath, boolean enablePreview) {
-        if (enablePreview && DefaultClassFactory.getJavaVersion() >= 11) {
-            return Arrays.asList("-classpath", compilationClassPath, "--enable-preview");
+    private List<String> createAdditionalCompilerOptions(boolean enablePreview) {
+        if (enablePreview && JavaVersionProvider.getJavaVersion() >= 11) {
+            return Collections.singletonList("--enable-preview");
         }
 
-        return Arrays.asList("-classpath", compilationClassPath);
+        return Collections.emptyList();
     }
 
     /**

@@ -4,7 +4,7 @@ import org.eclipse.jdt.internal.compiler.tool.EclipseCompiler;
 import org.junit.jupiter.params.ParameterizedTest;
 import org.junit.jupiter.params.provider.Arguments;
 import org.junit.jupiter.params.provider.MethodSource;
-import pl.joegreen.lambdaFromString.classFactory.DefaultClassFactory;
+import pl.joegreen.lambdaFromString.classFactory.JavaVersionProvider;
 import pl.joegreen.lambdaFromString.dummy.CustomInterface;
 import pl.joegreen.lambdaFromString.dummy.CustomInterfaceUsingInnerClass;
 
@@ -30,7 +30,7 @@ class LambdaFactoryTest {
     public static final String INCORRECT_CODE = "()->a";
 
     static Stream<Arguments> jdkAndEclipse() {
-        int javaVersion = DefaultClassFactory.getJavaVersion();
+        int javaVersion = JavaVersionProvider.getJavaVersion();
 
         if (javaVersion <= 8) {
             return Stream.of(Arguments.of(JavaCompilerProvider.getJdkJavaCompiler().get()),
@@ -247,5 +247,14 @@ class LambdaFactoryTest {
         LambdaFactory factory = LambdaFactory.get(LambdaFactoryConfiguration.get().withJavaCompiler(jc));
         assertThrows(LambdaCreationRuntimeException.class,
                 () -> factory.createLambdaUnchecked("", new TypeReference<Supplier<Object>>() {}));
+    }
+
+    @ParameterizedTest
+    @MethodSource("jdkAndEclipse")
+    void incorrectJavaVersionFailsCompilation(JavaCompiler jc) {
+        LambdaFactory factory = LambdaFactory.get(LambdaFactoryConfiguration.get().withJavaCompiler(jc).withJavaVersion(115));
+        LambdaCreationRuntimeException ex = assertThrows(LambdaCreationRuntimeException.class,
+                () -> factory.createLambdaUnchecked("i -> i+1", new TypeReference<Function<Integer, Integer>>() {}));
+        assertTrue(ex.getNestedCheckedException().getMessage().contains("115"));
     }
 }

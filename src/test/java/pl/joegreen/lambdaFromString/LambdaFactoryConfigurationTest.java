@@ -56,7 +56,8 @@ public class LambdaFactoryConfigurationTest {
 				.withCompilationClassPath(compilationClassPath)
 				.withParentClassLoader(parentClassLoader)
 				.withJavaCompiler(javaCompiler)
-				.withEnablePreview(true);
+				.withEnablePreview(true)
+				.withJavaVersion(17);
 
 		assertSame(helper, changedConfiguration.getDefaultHelperClassSourceProvider());
 		assertSame(classFactory, changedConfiguration.getClassFactory());
@@ -66,7 +67,7 @@ public class LambdaFactoryConfigurationTest {
 		assertSame(parentClassLoader, changedConfiguration.getParentClassLoader());
 		assertSame(javaCompiler, changedConfiguration.getJavaCompiler());
 		assertTrue(changedConfiguration.getEnablePreview());
-
+		assertEquals(17, changedConfiguration.getJavaVersion());
 	}
 
 }

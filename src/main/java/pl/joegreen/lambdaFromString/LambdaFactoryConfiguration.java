@@ -2,6 +2,7 @@ package pl.joegreen.lambdaFromString;
 
 import pl.joegreen.lambdaFromString.classFactory.ClassFactory;
 import pl.joegreen.lambdaFromString.classFactory.DefaultClassFactory;
+import pl.joegreen.lambdaFromString.classFactory.JavaVersionProvider;
 
 import javax.tools.JavaCompiler;
 import java.util.*;
@@ -11,6 +12,8 @@ import static java.util.stream.Stream.concat;
 
 public class LambdaFactoryConfiguration {
     protected static Optional<JavaCompiler> DEFAULT_COMPILER = JavaCompilerProvider.findDefaultJavaCompiler();
+    protected static final int FALLBACK_JAVA_VERSION = 8;
+
 
     private HelperClassSourceProvider helperClassSourceProvider;
     private ClassFactory classFactory;
@@ -20,6 +23,7 @@ public class LambdaFactoryConfiguration {
     private ClassLoader parentClassLoader;
     private JavaCompiler javaCompiler;
     private boolean enablePreview;
+    private int javaVersion;
 
     public static LambdaFactoryConfiguration get() {
         return new LambdaFactoryConfiguration();
@@ -34,6 +38,15 @@ public class LambdaFactoryConfiguration {
         parentClassLoader = this.getClass().getClassLoader();
         javaCompiler = DEFAULT_COMPILER.orElse(null);
         enablePreview = false;
+        javaVersion = getJavaVersionSafe();
+    }
+
+    private static int getJavaVersionSafe() {
+        try {
+            return JavaVersionProvider.getJavaVersion();
+        } catch (Exception ex) {
+            return FALLBACK_JAVA_VERSION;
+        }
     }
 
     private LambdaFactoryConfiguration copy() {
@@ -45,7 +58,8 @@ public class LambdaFactoryConfiguration {
                 .setCompilationClassPath(compilationClassPath)
                 .setParentClassLoader(parentClassLoader)
                 .setJavaCompiler(javaCompiler)
-                .setEnablePreview(enablePreview);
+                .setEnablePreview(enablePreview)
+                .setJavaVersion(javaVersion);
     }
 
 
@@ -79,6 +93,10 @@ public class LambdaFactoryConfiguration {
 
     public boolean getEnablePreview() {
         return enablePreview;
+    }
+
+    public int getJavaVersion() {
+        return javaVersion;
     }
 
     /**
@@ -145,7 +163,7 @@ public class LambdaFactoryConfiguration {
     }
 
     /**
-     * Overrides default JavaCompiler instance. <br>It can be used to force using JDK compiler when the Eclipse Compiler
+     * Overrides default JavaCompiler instance. <br>It can be used to force using Eclipse compiler when the JDK compiler
      * is also available. Completely different compiler instance can also be passed but in that case it is possible
      * that some changes will have to be made in the class factory ({@link #withClassFactory(ClassFactory)}).
      */
@@ -157,6 +175,13 @@ public class LambdaFactoryConfiguration {
         return copy().setEnablePreview(enablePreview);
     }
 
+    /**
+     * Overrides Java version that is used to set the 'source' and 'target' compiler arguments.
+     * The default is inferred from the 'java.version' system property or set to 8 if that fails.
+     */
+    public LambdaFactoryConfiguration withJavaVersion(int javaVersion) {
+        return copy().setJavaVersion(javaVersion);
+    }
 
     private LambdaFactoryConfiguration setDefaultHelperClassSourceProvider(HelperClassSourceProvider helperClassSourceProvider) {
         this.helperClassSourceProvider = helperClassSourceProvider;
@@ -198,31 +223,34 @@ public class LambdaFactoryConfiguration {
         return this;
     }
 
+    private LambdaFactoryConfiguration setJavaVersion(int javaVersion) {
+        this.javaVersion = javaVersion;
+        return this;
+    }
+
     private static <T> List<T> listWithNewElements(List<T> oldList, T... newElements) {
         return Collections.unmodifiableList(concat(oldList.stream(), Arrays.stream(newElements)).collect(toList()));
     }
 
     @Override
-    public boolean equals(Object obj) {
-        if (this == obj) {
-            return true;
-        }
-        if (!(obj instanceof LambdaFactoryConfiguration)) {
-            return false;
-        }
-        LambdaFactoryConfiguration other = (LambdaFactoryConfiguration) obj;
-        return Objects.equals(classFactory, other.classFactory)
-                && Objects.equals(compilationClassPath, other.compilationClassPath)
-                && enablePreview == other.enablePreview
-                && Objects.equals(helperClassSourceProvider, other.helperClassSourceProvider)
-                && Objects.equals(imports, other.imports) && Objects.equals(javaCompiler, other.javaCompiler)
-                && Objects.equals(parentClassLoader, other.parentClassLoader)
-                && Objects.equals(staticImports, other.staticImports);
+    public boolean equals(Object o) {
+        if (this == o) return true;
+        if (o == null || getClass() != o.getClass()) return false;
+        LambdaFactoryConfiguration that = (LambdaFactoryConfiguration) o;
+        return enablePreview == that.enablePreview &&
+                javaVersion == that.javaVersion &&
+                Objects.equals(helperClassSourceProvider, that.helperClassSourceProvider) &&
+                Objects.equals(classFactory, that.classFactory) &&
+                Objects.equals(staticImports, that.staticImports) &&
+                Objects.equals(imports, that.imports) &&
+                Objects.equals(compilationClassPath, that.compilationClassPath) &&
+                Objects.equals(parentClassLoader, that.parentClassLoader) &&
+                Objects.equals(javaCompiler, that.javaCompiler);
     }
 
     @Override
     public int hashCode() {
-        return Objects.hash(classFactory, compilationClassPath, enablePreview, helperClassSourceProvider, imports,
-                javaCompiler, parentClassLoader, staticImports);
+        return Objects.hash(helperClassSourceProvider, classFactory, staticImports, imports, compilationClassPath,
+                parentClassLoader, javaCompiler, enablePreview, javaVersion);
     }
 }

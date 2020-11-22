@@ -15,14 +15,6 @@ public class ClassPathExtractor {
         return Optional.ofNullable(System.getProperty("java.class.path")).orElse("");
     }
 
-    /**
-     * Assumes that the context class loader of the current thread is a URLClassLoader and will throw a runtime exception if it is not.
-     */
-    public static String getCurrentContextClassLoaderClassPath(){
-        URLClassLoader contextClassLoader = (URLClassLoader) Thread.currentThread().getContextClassLoader();
-        return getUrlClassLoaderClassPath(contextClassLoader);
-    }
-
     public static String getUrlClassLoaderClassPath(URLClassLoader classLoader) {
         return Arrays.stream(classLoader.getURLs())
                 .map(URL::getFile)

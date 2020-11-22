@@ -12,6 +12,7 @@ import java.util.stream.Collectors;
 import java.util.stream.Stream;
 
 
+
 /**
  * <strong>This class may change between versions</strong>.
  * If you use it your code may not work with the next version of the library.
@@ -19,9 +20,12 @@ import java.util.stream.Stream;
 public class DefaultClassFactory implements ClassFactory {
 
     @Override
-    public Class<?> createClass(String fullClassName, String sourceCode, JavaCompiler compiler, List<String> additionalCompilerOptions, ClassLoader parentClassLoader) throws ClassCompilationException {
+    public Class<?> createClass(String fullClassName, String sourceCode, JavaCompiler compiler,
+                                int javaVersion, String compilationClassPath,
+                                List<String> additionalCompilerOptions, ClassLoader parentClassLoader) throws ClassCompilationException {
         try {
-            Map<String, CompiledClassJavaObject> compiledClassesBytes = compileClasses(fullClassName, sourceCode, compiler, additionalCompilerOptions);
+            Map<String, CompiledClassJavaObject> compiledClassesBytes = compileClasses(fullClassName, sourceCode,
+                    compiler, javaVersion, compilationClassPath, additionalCompilerOptions);
             return loadClass(fullClassName, compiledClassesBytes, parentClassLoader);
         } catch (ClassNotFoundException | RuntimeException e) {
             throw new ClassCompilationException(e);
@@ -33,7 +37,7 @@ public class DefaultClassFactory implements ClassFactory {
     }
 
     protected Map<String, CompiledClassJavaObject> compileClasses(
-            String fullClassName, String sourceCode, JavaCompiler compiler, List<String> additionalCompilerOptions) throws ClassCompilationException {
+            String fullClassName, String sourceCode, JavaCompiler compiler, int javaVersion, String compilationClassPath, List<String> additionalCompilerOptions) throws ClassCompilationException {
 
         ClassSourceJavaObject classSourceObject = new ClassSourceJavaObject(fullClassName, sourceCode);
         /*
@@ -44,7 +48,8 @@ public class DefaultClassFactory implements ClassFactory {
         try (InMemoryFileManager stdFileManager = new InMemoryFileManager(compiler.getStandardFileManager(null, null, null))) {
             StringWriter stdErrWriter = new StringWriter();
             DiagnosticCollector<JavaFileObject> diagnosticsCollector = new DiagnosticCollector<>();
-            List<String> finalCompilerOptions = mergeStringLists(getDefaultCompilerOptions(), additionalCompilerOptions);
+            List<String> finalCompilerOptions =
+                    mergeStringLists(getDefaultCompilerOptions(javaVersion, compilationClassPath), additionalCompilerOptions);
             JavaCompiler.CompilationTask compilationTask = compiler.getTask(stdErrWriter,
                     stdFileManager, diagnosticsCollector,
                     finalCompilerOptions, null, Collections.singletonList(classSourceObject));
@@ -59,30 +64,10 @@ public class DefaultClassFactory implements ClassFactory {
         }
     }
 
-    /**
-     * Query the feature version of the JVM this is running on based on the
-     * {@code java.version} system property.
-     *
-     * @return e.g. 6 for {@code java.version}="1.6.0_23" and 9 for "9.0.1"
-     * @see  <a href="https://stackoverflow.com/a/2591122">https://stackoverflow.com/a/2591122</a>
-     */
-    public static int getJavaVersion() {
-        String version = System.getProperty("java.version");
-        if (version.startsWith("1.")) {
-            version = version.substring(2, 3);
-        } else {
-            int dot = version.indexOf(".");
-            if (dot != -1) {
-                version = version.substring(0, dot);
-            }
-        }
-        return Integer.parseInt(version);
-    }
-
-    protected List<String> getDefaultCompilerOptions() {
-        int javaVersion = getJavaVersion();
-        String javaVersionString = (javaVersion <= 8 ? "1." : "") + Integer.toString(javaVersion);
-        return Arrays.asList("-target", javaVersionString, "-source", javaVersionString);
+    protected List<String> getDefaultCompilerOptions(int javaVersion, String compilationClassPath) {
+        String javaVersionString = (javaVersion <= 8 ? "1." : "") + javaVersion;
+        return Arrays.asList("-classpath", compilationClassPath,
+                "-target", javaVersionString, "-source", javaVersionString);
     }
 
     private List<String> mergeStringLists(List<String> firstList, List<String> sendList) {
@@ -90,5 +75,4 @@ public class DefaultClassFactory implements ClassFactory {
     }
 
 }
-
 
