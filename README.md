@@ -109,6 +109,13 @@ Parent class loader can be configured manually to fix it:
 LambdaFactoryConfiguration.get().withParentClassLoader(MyClass.class.getClassLoader());
 ```
 
+Note that if you use this lib in AWS Lambda, the classpath might not work because ```System.getProperty("java.class.path") ``` only contains runtime lib in AWS Lambda. And you might see ```LambdaCreationException``` complaining "package does not exist".
+
+Manually including AWS Lambda's lib path can fix this:
+```java
+LambdaFactoryConfiguration.get().withCompilationClassPath("/var/task/:" + System.getProperty("java.class.path"));
+```
+
 ## Contribution
 Issues and pull requests are welcome. By contributing, you agree to allow the project owner to license your work under the the terms of the [MIT license](LICENSE). 
 
